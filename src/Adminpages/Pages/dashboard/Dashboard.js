@@ -1,33 +1,24 @@
 import React from "react";
 import { useQuery } from "react-query";
-import { apiConnectorGet } from "../../../utils/APIConnector";
-import { dollar, endpoint } from "../../../utils/APIRoutes";
+import axiosInstance from "../../config/axios";
+import { API_URLS } from "../../config/APIUrls";
 
 const Dashboard = () => {
-  const { data } = useQuery(
-    ['get_admin'],
-    () => apiConnectorGet(endpoint?.admin_dashboard),
-    {
-      keepPreviousData: true,
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-      onError: (err) => console.error("Error fetching dashboard data:", err),
-    }
+  const { data, isLoading, isError } = useQuery(
+    ["dashboard_count"],
+    () => axiosInstance.get(API_URLS?.dashboard_count),
+    { keepPreviousData: true }
   );
 
-  const dashboard = data?.data?.result?.[0] || {};
+  const dashboard = data?.data?.data || {};
+
+  if (isLoading) return <p>Loading...</p>;
+  if (isError) return <p>Error fetching data</p>;
 
   const stats = [
-    { label: "Total Customer", value: dashboard?.total_customer || 0 },
-    // { label: "Current Topup Amount", value: `${dollar} ${dashboard?.curr_topup || 0}` },
-    { label: "Total Invester Amount", value: `${dollar} ${dashboard?.total_trader_amount || 0}` },
-    { label: "Verified Invester Account", value: dashboard?.verified_trader || 0} ,
-    { label: "Payout Wallet ", value: dashboard?.payout_wallet || 0} ,
-    { label: "Success Payout Amount", value: `${dollar} ${Number(dashboard?.success_payout)?.toFixed(2) || 0}`},
-    { label: "Pending Payout Amount", value: `${dollar} ${Number(dashboard?.pending_payout)?.toFixed(2) || 0}`},
-    { label: "Pending Invester Account", value: dashboard?.pending_trader || 0 },
-    { label: "Rejected Invester Account", value: dashboard?.rejected_trader || 0 },
+    { label: "Total Leads", value: dashboard?.total_leads || 0 },
+    { label: "Total Owners", value: dashboard?.total_owners || 0 },
+    // { label: "Total Follow-ups", value: dashboard?.total_followups || 0 },
   ];
 
   return (

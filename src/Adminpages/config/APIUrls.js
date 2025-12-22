@@ -7,6 +7,8 @@ export const API_URLS = {
 
   admin_login: `${domain}/api/v1/auth-admin-login`,
 
+  dashboard_count: `${domain}/api/v1/dashboard-count`,
+
   create_leads: `${domain}/api/v1/create-leads`,
   lead_list: `${domain}/api/v1/get-leads`,
 
