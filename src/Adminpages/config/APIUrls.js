@@ -39,4 +39,10 @@ export const API_URLS = {
   update_followup_status: `${domain}/api/v1/update-followup-status`,
   toggle_followup_status: `${domain}/api/v1/update-followup-status-status`,
 
+
+  get_area: `${domain}/api/v1/get-area`,
+  create_area: `${domain}/api/v1/create-area`,
+  update_area: `${domain}/api/v1/update-area`,
+  toggle_area: `${domain}/api/v1/update-area-status`,
+
 };

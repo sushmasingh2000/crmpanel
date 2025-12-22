@@ -1,20 +1,60 @@
-import axios from "axios";
+
+  export const STATES = [
+  { id: 1, country_id: "IN", name: "Andhra Pradesh" },
+  { id: 2, country_id: "IN", name: "Arunachal Pradesh" },
+  { id: 3, country_id: "IN", name: "Assam" },
+  { id: 4, country_id: "IN", name: "Bihar" },
+  { id: 5, country_id: "IN", name: "Chhattisgarh" },
+  { id: 6, country_id: "IN", name: "Goa" },
+  { id: 7, country_id: "IN", name: "Gujarat" },
+  { id: 8, country_id: "IN", name: "Haryana" },
+  { id: 9, country_id: "IN", name: "Himachal Pradesh" },
+  { id: 10, country_id: "IN", name: "Jharkhand" },
+  { id: 11, country_id: "IN", name: "Karnataka" },
+  { id: 12, country_id: "IN", name: "Kerala" },
+  { id: 13, country_id: "IN", name: "Madhya Pradesh" },
+  { id: 14, country_id: "IN", name: "Maharashtra" },
+  { id: 15, country_id: "IN", name: "Manipur" },
+  { id: 16, country_id: "IN", name: "Meghalaya" },
+  { id: 17, country_id: "IN", name: "Mizoram" },
+  { id: 18, country_id: "IN", name: "Nagaland" },
+  { id: 19, country_id: "IN", name: "Odisha" },
+  { id: 20, country_id: "IN", name: "Punjab" },
+  { id: 21, country_id: "IN", name: "Rajasthan" },
+  { id: 22, country_id: "IN", name: "Sikkim" },
+  { id: 23, country_id: "IN", name: "Tamil Nadu" },
+  { id: 24, country_id: "IN", name: "Telangana" },
+  { id: 25, country_id: "IN", name: "Tripura" },
+  { id: 26, country_id: "IN", name: "Uttar Pradesh" },
+  { id: 27, country_id: "IN", name: "Uttarakhand" },
+  { id: 28, country_id: "IN", name: "West Bengal" },
+  
+  { id: 29, country_id: "US", name: "California" },
+  { id: 30, country_id: "US", name: "Texas" },
+  { id: 31, country_id: "US", name: "Florida" },
+  { id: 32, country_id: "US", name: "New York" },
+  { id: 33, country_id: "CA", name: "Ontario" },
+  { id: 34, country_id: "CA", name: "Quebec" },
+  { id: 35, country_id: "CA", name: "British Columbia" },
+  { id: 36, country_id: "AU", name: "Victoria" },
+  { id: 37, country_id: "AU", name: "Queensland" },
+  { id: 38, country_id: "UK", name: "England" },
+  { id: 39, country_id: "UK", name: "Scotland" },
+  { id: 40, country_id: "UK", name: "Wales" },
+  { id: 41, country_id: "FR", name: "Île-de-France" },
+  { id: 42, country_id: "FR", name: "Provence-Alpes-Côte d'Azur" },
+  { id: 43, country_id: "DE", name: "Bavaria" },
+  { id: 44, country_id: "DE", name: "Berlin" },
+  { id: 45, country_id: "JP", name: "Tokyo" },
+  { id: 46, country_id: "JP", name: "Osaka" },
+  { id: 47, country_id: "BR", name: "São Paulo" },
+  { id: 48, country_id: "BR", name: "Rio de Janeiro" },
+  { id: 49, country_id: "ZA", name: "Gauteng" },
+  { id: 50, country_id: "ZA", name: "Western Cape" },
+  { id: 51, country_id: "RU", name: "Moscow" },
+  { id: 52, country_id: "RU", name: "Saint Petersburg" },
+  { id: 53, country_id: "AU", name: "New South Wales" },
+
+];
 
 
-export  const State = ({setState,cuntryId,setloding}) => {
-
-    axios
-      .get(`https://b1.bhaaraterp.com/country-state-city-list-api-of-bhaaraterp/?country_id=${cuntryId}`, {
-        headers: {
-            authorization: `1f3b587d40a217cec89c8987cbe5e2084d27b89b`,
-            "Content-Type":"application/json"
-          },
-      })
-      .then((response) => {
-        setState(response?.data?.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-
-  };

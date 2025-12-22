@@ -40,14 +40,16 @@ const OwnerList = () => {
     );
 
     const owners = data?.data?.response || [];
+    
 
-    const tableHead = ["S.No.", "Name", "Mobile", "Area", "Category", "Property"];
+    const tableHead = ["S.No.", "Name", "Mobile", "Area", "PinCode", "Category", "Property"];
 
     const tableRow = owners?.data?.map((o, index) => [
         index + 1,
         o.crm_owner_name,
         o.crm_mobile,
         o.crm_area,
+        o.crm_pincode,
         o.crm_owner_category,
         <span><Edit onClick={() => navigate('/list_properties', {
             state: {

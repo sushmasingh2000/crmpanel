@@ -57,6 +57,17 @@ export const all_Data = [
         ),
         subcomponent: [],
       },
+       {
+        id: 1.4,
+        navLink: "/list_area",
+        navItem: "Area",
+        navIcon: (
+          <span>
+            <AddToPhotosIcon color="#15317E" fontSize="medium" />
+          </span>
+        ),
+        subcomponent: [],
+      },
       
     ],
   },

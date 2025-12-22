@@ -1,4 +1,5 @@
 
+import Area from "../Adminpages/Pages/allmaster/Area";
 import FollowupMaster from "../Adminpages/Pages/allmaster/Followup";
 import PropertyMaster from "../Adminpages/Pages/allmaster/Property";
 import ServiceTypeMaster from "../Adminpages/Pages/allmaster/Services";
@@ -111,7 +112,12 @@ export const adminroutes = [
     component: <FollowupMaster/>,
     navItem: " FollowUp",
   },
-
+ {
+    id: 11,
+    path: "/list_area",
+    component: <Area/>,
+    navItem: "Area Master",
+  },
   {
     id: 42,
     path: "/weeklybonus",
