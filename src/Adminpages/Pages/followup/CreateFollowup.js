@@ -5,6 +5,7 @@ import { toast } from "react-hot-toast";
 import { API_URLS } from "../../config/APIUrls";
 import axiosInstance from "../../config/axios";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useQuery } from "react-query";
 
 const CreateFollowup = () => {
     const [loading, setLoading] = useState(false);
@@ -36,26 +37,42 @@ const CreateFollowup = () => {
         },
     });
 
+    const { data: statusList } = useQuery(
+        ["get_followup_master"],
+        () =>
+            axiosInstance.post(API_URLS.get_followup_master, {
+                count: 100000,
+                status: 1
+            }),
+        {
+            refetchOnWindowFocus: false,
+        }
+    );
+
+    const status = statusList?.data?.response || [];
+
     return (
         <div className=" flex items-center justify-center p-4">
-            <div  className="w-full max-w-md p-6 bg-white bg-opacity-45">
-                <p className="text-lg font-bold mb-4 text-center">Add Follow-up</p>
+            <div className="w-full  p-6 bg-white bg-opacity-45">
+                <p className="text-lg font-bold mb-4 text-center lg:mb-8">Add Follow-up</p>
 
-                <div className="flex flex-col gap-4">
+                <div className="grid lg:grid-cols-2 grid-cols-1 gap-4">
                     <TextField
                         select
-                        label="Status"
+                        label="Select FollowUp Status"
                         name="crm_status"
                         value={fk.values.crm_status}
                         onChange={fk.handleChange}
                         fullWidth
                         required
                     >
-                        <MenuItem value="Followup / Callback">Followup / Callback</MenuItem>
-                        <MenuItem value="Interested">Interested</MenuItem>
-                        <MenuItem value="Site Visit">Site Visit</MenuItem>
-                        <MenuItem value="Deal Success">Deal Success</MenuItem>
-                        <MenuItem value="Rejected">Rejected</MenuItem>
+                       
+                        {status?.data?.map((item) => (
+                            <MenuItem key={item.followup_status_id} value={item.followup_status_name}>
+                                {item.followup_status_name}
+                            </MenuItem>
+                        ))}
+                       
                     </TextField>
 
                     <TextField

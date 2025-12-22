@@ -6,7 +6,7 @@ import { useQuery } from "react-query";
 import { candidateName } from "../../Services";
 import { API_URLS } from "../../config/APIUrls";
 import axiosInstance from "../../config/axios";
-import CustomCircularProgress from "../../../shared/CustomDialogBox";
+import CustomCircularProgress from "../../Shared/CustomDialogBox";
 
 const Changepassword = () => {
   const [loding, setloding] = useState(false);

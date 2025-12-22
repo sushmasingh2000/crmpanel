@@ -24,7 +24,6 @@ const FollowupList = () => {
             enabled: !!lead,
         }
     );
-
     const allData = data?.data?.response || [];
 
 

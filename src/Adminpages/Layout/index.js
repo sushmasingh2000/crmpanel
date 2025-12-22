@@ -64,7 +64,7 @@ const AdminLayout = ({ component, navItem, navLink, id }) => {
     >
       {!isMediumScreen ? <Sidebar /> : <MobileNavigation />}
       <div className="flex flex-col gap-3 h-screen lg:!w-[calc(100vw-16vw)] w-full !overflow-x-auto  lg:p-5 !bg-white !bg-opacity-50">
-        {!isMediumScreen && (
+        {/* {!isMediumScreen && (
           <div className="flex flex-col h-[24vh] w-full">
             <div className="flex w-full mb-4 items-center rounded justify-between">
               <p className="text-xl font-semibold">{navItem}</p>
@@ -98,7 +98,7 @@ const AdminLayout = ({ component, navItem, navLink, id }) => {
               </div>
             )}
           </div>
-        )}
+        )} */}
 
         <div className="flex flex-col overflow-y-auto w-full lg:h-[83vh] !h-[100vh] glass lg:!p-1 !rounded-md">
           {component}

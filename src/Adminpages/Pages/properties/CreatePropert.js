@@ -5,6 +5,7 @@ import { API_URLS } from "../../config/APIUrls";
 import { toast } from "react-hot-toast";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { useQuery } from "react-query";
 
 const CreateProperty = () => {
   const navigate = useNavigate();
@@ -39,6 +40,18 @@ const CreateProperty = () => {
     enableReinitialize: true,
   });
 
+  const { data: propertyList } = useQuery(
+    ["get_property_master"],
+    () =>
+      axiosInstance.post(API_URLS.get_property_master, {
+        count: 100000,
+        status: 1,
+      }),
+    { refetchOnWindowFocus: false }
+  );
+
+  const properties = propertyList?.data?.response || [];
+
   return (
     <div className="p-6 mt-6 bg-white bg-opacity-35">
       <p className="text-xl text-center font-bold mb-4">Create Property</p>
@@ -55,15 +68,17 @@ const CreateProperty = () => {
         {/* ✅ ENUM → SELECT */}
         <TextField
           select
-          label="Property Type"
+          label="Select Property "
           name="crm_property_type"
           value={fk.values.crm_property_type}
           onChange={fk.handleChange}
           fullWidth
         >
-          <MenuItem value="Apartment">Apartment</MenuItem>
-          <MenuItem value="Independent House">Independent House</MenuItem>
-          <MenuItem value="Independent Floor">Independent Floor</MenuItem>
+          {properties?.data?.map((item) => (
+            <MenuItem key={item.property_type_id} value={item.property_type_name}>
+              {item.property_type_name}
+            </MenuItem>
+          ))}
         </TextField>
 
         {/* ✅ number */}

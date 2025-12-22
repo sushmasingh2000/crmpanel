@@ -35,21 +35,15 @@ const LeadList = () => {
         start_date: fk.values.start_date,
         end_date: fk.values.end_date,
         page: currentPage,
-        count: fk.values.count,
+        count: 10,
       }),
     {
       keepPreviousData: true,
-      enabled: false, // manual fetch
     }
   );
 
-  const allData = leadsData?.data?.response?.data || [];
-  const totalPages = leadsData?.data?.response?.totalPage || 1;
+  const allData = leadsData?.data?.response || [];
 
-  // Page change effect
-  useEffect(() => {
-    refetch();
-  }, [currentPage]);
 
   const tableHead = [
     "Id",
@@ -65,7 +59,7 @@ const LeadList = () => {
     "Created At",
   ];
 
-  const tableRow = allData.map((lead, index) => [
+  const tableRow = allData?.data?.map((lead, index) => [
     index + 1 + (currentPage - 1) * fk.values.count, // show correct serial number
     lead.crm_lead_name,
     lead.crm_mobile,
@@ -86,7 +80,8 @@ const LeadList = () => {
 
   return (
     <div className="">
-      <div className="flex justify-end">
+      <div className="flex justify-between">
+           <p className="font-bold text-xl">Leads</p>
         <Button
           variant="contained"
           onClick={() => navigate("/add-lead")}
@@ -112,13 +107,6 @@ const LeadList = () => {
           value={fk.values.search}
           onChange={fk.handleChange}
         />
-        <Button
-          variant="contained"
-          startIcon={<FilterAlt />}
-          onClick={fk.handleSubmit}
-        >
-          Filter
-        </Button>
       </div>
 
       <CustomTable
@@ -130,7 +118,7 @@ const LeadList = () => {
       <CustomToPagination
         page={currentPage}
         setPage={setCurrentPage}
-        totalPage={totalPages}
+        totalPage={allData}
       />
     </div>
   );

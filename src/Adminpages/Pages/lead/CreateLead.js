@@ -5,10 +5,13 @@ import { toast } from "react-hot-toast";
 import axiosInstance from "../../config/axios";
 import { API_URLS } from "../../config/APIUrls";
 import Loader from "../../../Shared/Loader";
+import { useQuery } from "react-query";
+import { ConstructionOutlined } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
 
 const CreateLead = () => {
     const [loading, setLoading] = useState(false);
-
+     const navigate = useNavigate();
     const fk = useFormik({
         initialValues: {
             crm_lead_name: "",
@@ -19,14 +22,15 @@ const CreateLead = () => {
             crm_locality: "",
             crm_city: "Lucknow",
             crm_lead_date: "",
-        },  
-        
+        },
+
         onSubmit: async (values) => {
             setLoading(true);
             try {
                 const res = await axiosInstance.post(API_URLS?.create_leads, values);
+                 toast(res.data.message);
                 if (res.data?.success) {
-                    toast.success(res.data.message);
+                   navigate('/leads')
                     fk.resetForm();
                 } else {
                     toast.error(res.data.message || "Failed to create lead");
@@ -39,11 +43,36 @@ const CreateLead = () => {
         },
     });
 
+    const { data: serviceList } = useQuery(
+        ["get_service_type_master"],
+        () =>
+            axiosInstance.post(API_URLS.get_service_type, {
+                count: 10000000000,
+                status:1
+            }),
+        {
+            refetchOnWindowFocus: false,
+        }
+    );
+
+    const services = serviceList?.data?.response || [];
+
+    const {  data: propertyList } = useQuery(
+        ["get_property_master"],
+        () =>
+            axiosInstance.post(API_URLS.get_property_master, {
+                count: 100000,
+                status: 1,
+            }),
+        { refetchOnWindowFocus: false }
+    );
+
+    const properties = propertyList?.data?.response || [];
 
     return (
         <div className="flex justify-center items-center w-full p-5">
-            <Loader isLoading={loading}/>
-            <div className=" rounded-lg p-5 w-full max-w-3xl">
+            <Loader isLoading={loading} />
+            <div className=" rounded-lg p-5 w-full max-w-3xl bg-white bg-opacity-45">
                 <p className="text-center font-bold text-lg mb-5">Create Lead</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <TextField
@@ -73,30 +102,40 @@ const CreateLead = () => {
                         error={fk.touched.crm_email && Boolean(fk.errors.crm_email)}
                         helperText={fk.touched.crm_email && fk.errors.crm_email}
                     />
-          
+
                     <TextField
                         select
                         fullWidth
-                        label="Service Type"
+                        label="Select Service"
                         name="crm_service_type"
                         value={fk.values.crm_service_type}
                         onChange={fk.handleChange}
                         error={fk.touched.crm_service_type && Boolean(fk.errors.crm_service_type)}
                         helperText={fk.touched.crm_service_type && fk.errors.crm_service_type}
                     >
-                        <MenuItem value="Rent">Rent</MenuItem>
-                        <MenuItem value="Resale">Resale</MenuItem>
+                        {services?.data?.map((item) => (
+                            <MenuItem key={item.service_type_id} value={item.service_type_name}>
+                                {item.service_type_name}
+                            </MenuItem>
+                        ))}
                     </TextField>
 
                     <TextField
+                        select
                         fullWidth
-                        label="Property Type"
+                        label="Select Property"
                         name="crm_property_type"
                         value={fk.values.crm_property_type}
                         onChange={fk.handleChange}
                         error={fk.touched.crm_property_type && Boolean(fk.errors.crm_property_type)}
                         helperText={fk.touched.crm_property_type && fk.errors.crm_property_type}
-                    />
+                    >
+                        {properties?.data?.map((item) => (
+                            <MenuItem key={item.property_type_id} value={item.property_type_name}>
+                                {item.property_type_name}
+                            </MenuItem>
+                        ))}
+                    </TextField>
                     <TextField
                         fullWidth
                         label="Locality"

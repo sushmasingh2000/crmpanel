@@ -22,4 +22,19 @@ export const API_URLS = {
   update_properties: `${domain}/api/v1/update-properties`,
   delete_properties: `${domain}/api/v1/delete-properties`,
 
+  create_service_type: `${domain}/api/v1/create-service-type`,
+  get_service_type: `${domain}/api/v1/get-service-type`,
+  update_service_type: `${domain}/api/v1/update-service-type`,
+  update_service_type_status: `${domain}/api/v1/update-service-type-status`,
+
+  create_property_master: `${domain}/api/v1/create-property-type-master`,
+  get_property_master: `${domain}/api/v1/get-property-type-master`,
+  update_property_master: `${domain}/api/v1/update-property-master`,
+  update_property_master_status: `${domain}/api/v1/update-property-master-status`,
+
+  get_followup_master: `${domain}/api/v1/get-followup-master`,
+  create_followup_status: `${domain}/api/v1/create-followup-status`,
+  update_followup_status: `${domain}/api/v1/update-followup-status`,
+  toggle_followup_status: `${domain}/api/v1/update-followup-status-status`,
+
 };

@@ -1,11 +1,12 @@
 
-import Banner from "../Adminpages/Pages/Banner";
+import FollowupMaster from "../Adminpages/Pages/allmaster/Followup";
+import PropertyMaster from "../Adminpages/Pages/allmaster/Property";
+import ServiceTypeMaster from "../Adminpages/Pages/allmaster/Services";
 import Dashboard from "../Adminpages/Pages/dashboard/Dashboard";
 import CreateFollowup from "../Adminpages/Pages/followup/CreateFollowup";
 import FollowupList from "../Adminpages/Pages/followup/FollowupList";
 import AddAddress from "../Adminpages/Pages/fund/AddAddress";
-import { default as BoosterBonus, default as MatchingBonus } from "../Adminpages/Pages/genealogy/BoosterBonus";
-import DirectBonus from "../Adminpages/Pages/genealogy/DirectBonus";
+import { default as MatchingBonus } from "../Adminpages/Pages/genealogy/BoosterBonus";
 import LevelBonus from "../Adminpages/Pages/genealogy/LevelBonus";
 import ROIBonus from "../Adminpages/Pages/genealogy/ROIBonus";
 import WeeklyBonus from "../Adminpages/Pages/genealogy/WeeklyBonus";
@@ -14,7 +15,6 @@ import INRPaying from "../Adminpages/Pages/INRPayment/INRPaying";
 import INRPayout from "../Adminpages/Pages/INRPayment/INRPayout";
 import CreateLead from "../Adminpages/Pages/lead/CreateLead";
 import LeadList from "../Adminpages/Pages/lead/LeadList";
-import Master from "../Adminpages/Pages/Master";
 import CreateOwner from "../Adminpages/Pages/owner/CreateOwner";
 import OwnerList from "../Adminpages/Pages/owner/OwnerList";
 import CreateProperty from "../Adminpages/Pages/properties/CreatePropert";
@@ -46,7 +46,7 @@ export const adminroutes = [
   // },
   {
     id: 2,
-    path: "/add_laeds",
+    path: "/add-lead",
     component: <CreateLead />,
     navItem: "Create Leads",
   },
@@ -92,7 +92,26 @@ export const adminroutes = [
     component: <OwnerList/>,
     navItem: " Owner",
   },
-  
+
+   {
+    id: 8,
+    path: "/list-services",
+    component: <ServiceTypeMaster/>,
+    navItem: " Services",
+  },
+    {
+    id: 9,
+    path: "/list-property-master",
+    component: <PropertyMaster/>,
+    navItem: " Property",
+  },
+   {
+    id: 10,
+    path: "/list-followup-master",
+    component: <FollowupMaster/>,
+    navItem: " FollowUp",
+  },
+
   {
     id: 42,
     path: "/weeklybonus",
@@ -202,4 +221,5 @@ export const adminroutes = [
     component: <AddAddress/>,
     navItem: "Fund",
   },
+  
 ];
