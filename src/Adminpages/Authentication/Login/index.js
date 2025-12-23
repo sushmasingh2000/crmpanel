@@ -19,7 +19,7 @@ const LogIn = () => {
     enableReinitialize: true,
     onSubmit: () => {
       const reqBody = {
-        crm_username: fk.values.username,
+        crm_name: fk.values.username,
         crm_password: fk.values.password,
       };
       loginFunction(reqBody);
@@ -33,6 +33,7 @@ const LogIn = () => {
           toast(response?.data?.msg);
       if (response?.data?.success) {
           localStorage.setItem("token", response?.data?.response?.[0]?.token);
+          localStorage.setItem("type", response?.data?.response?.[0]?.usertype);
           navigate("/admindashboard");
           window.location.reload();
         }
@@ -95,6 +96,9 @@ const LogIn = () => {
           >
             Login Now
           </button>
+          <p className='text-white text-end text-sm cursor-pointer' onClick={()=>{
+            navigate('/sign_up')
+          }}>You don't have an <span className='underline'>Signup ?</span> </p>
         </form>
       </div>
     </div>

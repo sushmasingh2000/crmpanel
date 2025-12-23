@@ -1,6 +1,8 @@
 import { LeaderboardSharp } from "@mui/icons-material";
 import AddToPhotosIcon from "@mui/icons-material/AddToPhotos";
 import DashboardCustomizeIcon from "@mui/icons-material/DashboardCustomize";
+const user_type = localStorage.getItem("type")
+
 export const all_Data = [
  
   {
@@ -14,6 +16,17 @@ export const all_Data = [
     ),
     subcomponent: [],
   },
+    {
+        id: 5,
+        navLink: "/employee_list",
+        navItem: "Employee",
+        navIcon: (
+          <span>
+            <AddToPhotosIcon color="#15317E" fontSize="medium" />
+          </span>
+        ),
+        subcomponent: [],
+      },
    {
     id: 1,
     navLink: "/list-services",
@@ -46,17 +59,17 @@ export const all_Data = [
         ),
         subcomponent: [],
       },
-       {
-        id: 1.4,
-        navLink: "/list-followup-master",
-        navItem: " FollowUp",
-        navIcon: (
-          <span>
-            <AddToPhotosIcon color="#15317E" fontSize="medium" />
-          </span>
-        ),
-        subcomponent: [],
-      },
+      //  {
+      //   id: 1.4,
+      //   navLink: "/list-followup-master",
+      //   navItem: " FollowUp",
+      //   navIcon: (
+      //     <span>
+      //       <AddToPhotosIcon color="#15317E" fontSize="medium" />
+      //     </span>
+      //   ),
+      //   subcomponent: [],
+      // },
        {
         id: 1.4,
         navLink: "/list_area",
@@ -94,4 +107,12 @@ export const all_Data = [
     subcomponent: [],
   },
 
-];
+]?.filter((i) => {
+  if (user_type === "admin") return true;
+
+  if (user_type === "employee") {
+    return i.navItem !== "Master" && i.navItem !== "Employee";
+  }
+
+  return false;
+});

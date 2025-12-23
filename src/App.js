@@ -7,6 +7,7 @@ import "./App.css";
 import LogIn from "./Adminpages/Authentication/Login";
 import AdminLayout from "./Adminpages/Layout";
 import { adminroutes } from "./AdminRoutes";
+import SignUp from "./Adminpages/Authentication/Signup";
 
 const App = () => {
   const user = localStorage.getItem("token");
@@ -16,8 +17,8 @@ const App = () => {
       <Routes>
         {/* <Route path="/" element={<Main />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Registration />} />
         <Route path="/forgot" element={<ForgotPassword />} /> */}
+        <Route path="/sign_up" element={<SignUp />} />
   
         <Route path="/" element={<LogIn />} />
 

@@ -103,7 +103,7 @@ const OwnerList = () => {
             <CustomToPagination
                 page={currentPage}
                 setPage={setCurrentPage}
-                totalPage={owners}
+                data={owners}
             />
         </div>
     );

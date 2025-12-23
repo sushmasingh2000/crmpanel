@@ -6,8 +6,11 @@ export const frontend = "http://192.168.18.101:3000"
 export const API_URLS = {
 
   admin_login: `${domain}/api/v1/auth-admin-login`,
+  emp_registration: `${domain}/api/v1/auth-emp-registration`,
+  
 
   dashboard_count: `${domain}/api/v1/dashboard-count`,
+  employee_list: `${domain}/api/v1/employee-list`,
 
   create_leads: `${domain}/api/v1/create-leads`,
   lead_list: `${domain}/api/v1/get-leads`,
@@ -45,4 +48,5 @@ export const API_URLS = {
   update_area: `${domain}/api/v1/update-area`,
   toggle_area: `${domain}/api/v1/update-area-status`,
 
+  assign_lead:`${domain}/api/v1/assign-lead-to-employee`
 };

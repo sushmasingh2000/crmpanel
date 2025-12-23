@@ -1,32 +1,32 @@
-import React, { useState, useEffect } from "react";
-import { TextField, Button } from "@mui/material";
+import React, { useState } from "react";
+import { TextField, Button, Dialog, DialogTitle, DialogContent, DialogActions, MenuItem, Select, FormControl, InputLabel } from "@mui/material";
 import axiosInstance from "../../config/axios";
 import { API_URLS } from "../../config/APIUrls";
 import moment from "moment";
 import CustomTable from "../../Shared/CustomTable";
-import { Edit, FilterAlt, RemoveRedEye } from "@mui/icons-material";
-import { useQuery } from "react-query";
+import { Edit, Lock } from "@mui/icons-material";
+import { useQuery, useMutation, useQueryClient } from "react-query";
 import { useFormik } from "formik";
 import { useNavigate } from "react-router-dom";
 import CustomToPagination from "../../../Shared/Pagination";
 
 const LeadList = () => {
   const navigate = useNavigate();
-  const [currentPage, setCurrentPage] = useState(1); // number type
+  const queryClient = useQueryClient();
+  const user_type = localStorage.getItem("type");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Dialog state
+  const [openAssignDialog, setOpenAssignDialog] = useState(false);
+  const [selectedLead, setSelectedLead] = useState(null);
+  const [selectedEmployee, setSelectedEmployee] = useState("");
 
   const fk = useFormik({
-    initialValues: {
-      search: "",
-      start_date: "",
-      end_date: "",
-      count: 10,
-    },
-    onSubmit: () => {
-      setCurrentPage(1); // Filter lagate hi page 1 pe set ho
-      refetch();
-    },
+    initialValues: { search: "", start_date: "", end_date: "", count: 10 },
+    onSubmit: () => setCurrentPage(1),
   });
 
+  // Fetch leads
   const { data: leadsData, isLoading, refetch } = useQuery(
     ["get_leads", fk.values.search, fk.values.start_date, fk.values.end_date, currentPage],
     () =>
@@ -37,13 +37,40 @@ const LeadList = () => {
         page: currentPage,
         count: 10,
       }),
-    {
-      keepPreviousData: true,
-    }
+    { keepPreviousData: true }
   );
 
   const allData = leadsData?.data?.response || [];
 
+
+  const { data: employeesData } = useQuery(
+    ["employees"],
+    () =>
+      axiosInstance.post(API_URLS.employee_list, {
+        count: 10000,
+      }),
+    { keepPreviousData: true }
+  );
+
+  const employee_all = employeesData?.data?.data || [];
+
+
+  const assignLeadMutation = useMutation(
+    () =>
+      axiosInstance.post(API_URLS.assign_lead, {
+        lead_id: selectedLead?.id,
+        employee_id: selectedEmployee,
+        employee_name: employee_all.find(emp => emp.id === selectedEmployee)?.name
+      }),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries("get_leads");
+        setOpenAssignDialog(false);
+        setSelectedEmployee("");
+        alert("Lead assigned successfully");
+      },
+    }
+  );
 
   const tableHead = [
     "Id",
@@ -52,43 +79,81 @@ const LeadList = () => {
     "Email",
     "Service Type",
     "Property Type",
+    ...(user_type === "admin" ? ["Employee Name"] : []),
     "Locality",
     "City",
+    "Status",
+    ...(user_type === "admin" ? ["Action"] : []),
     "FollowUp",
     "Lead Date",
     "Created At",
   ];
 
-  const tableRow = allData?.data?.map((lead, index) => [
-    index + 1 + (currentPage - 1) * fk.values.count, // show correct serial number
-    lead.crm_lead_name,
-    lead.crm_mobile,
-    lead.crm_email,
-    lead.crm_service_type,
-    lead.crm_property_type,
-    lead.crm_locality,
-    lead.crm_city,
-    <span className="flex justify-center items-center">
-      <Edit className="!text-green-600" onClick={() => navigate('/follow-up', {
-      state: {
-        lead_id: lead?.id
-      }
-    })} />  </span>,
-    lead.crm_lead_date ? moment(lead.crm_lead_date).format("YYYY-MM-DD") : "--",
-    lead.crm_created_at ? moment(lead.crm_created_at).format("YYYY-MM-DD") : "--",
-  ]);
+  const tableRow = allData?.data?.map((lead, index) => {
+    const row = [
+      index + 1 + (currentPage - 1) * fk.values.count,
+      lead.crm_lead_name,
+      lead.crm_mobile,
+      lead.crm_email,
+      lead.crm_service_type,
+      lead.crm_property_type,
+    ];
+
+    if (user_type === "admin") {
+      row.push(lead.assigned_employee_name || "--"); // Employee Name
+    }
+
+    row.push(
+      lead.crm_locality,
+      lead.crm_city,
+      lead.current_status || "--"
+    );
+
+    if (user_type === "admin") {
+      row.push(
+        <span className="flex justify-center">
+          {lead.assigned_employee_name ? (
+            <Lock />
+          ) : (
+            <Button
+              size="small"
+              variant="outlined"
+              onClick={() => {
+                setSelectedLead(lead);
+                setOpenAssignDialog(true);
+              }}
+            >
+              Assign
+            </Button>
+          )}
+        </span>
+      );
+    }
+
+    row.push(
+      <Edit
+        className="!text-green-600"
+        onClick={() => navigate("/follow-up", { state: { lead_id: lead?.id } })}
+      />,
+      lead.crm_lead_date ? moment(lead.crm_lead_date).format("YYYY-MM-DD") : "--",
+      lead.crm_created_at ? moment(lead.crm_created_at).format("YYYY-MM-DD") : "--"
+    );
+
+    return row;
+  });
+
 
   return (
-    <div className="">
-      <div className="flex justify-between">
-           <p className="font-bold text-xl">Leads</p>
-        <Button
-          variant="contained"
-          onClick={() => navigate("/add-lead")}
-        >
-          + Add Lead
-        </Button>
+    <div>
+      <div className="flex justify-between mb-4">
+        <p className="font-bold text-xl">Leads</p>
+        {user_type === "admin" && (
+          <Button variant="contained" onClick={() => navigate("/add-lead")}>
+            + Add Lead
+          </Button>
+        )}
       </div>
+
       <div className="flex gap-3 mb-4">
         <TextField
           type="date"
@@ -109,17 +174,66 @@ const LeadList = () => {
         />
       </div>
 
-      <CustomTable
-        tablehead={tableHead}
-        tablerow={tableRow}
-        isLoading={isLoading}
-      />
+      <CustomTable tablehead={tableHead} tablerow={tableRow} isLoading={isLoading} />
 
-      <CustomToPagination
-        page={currentPage}
-        setPage={setCurrentPage}
-        totalPage={allData}
-      />
+      <CustomToPagination page={currentPage} setPage={setCurrentPage} totalPage={allData} />
+      <Dialog
+        open={openAssignDialog}
+        onClose={() => setOpenAssignDialog(false)}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle sx={{ fontWeight: "bold", fontSize: "1.2rem" }} className="!text-center">
+          Assign Lead
+        </DialogTitle>
+
+        <DialogContent dividers sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <FormControl fullWidth size="small">
+            <div className="">Lead Name</div>
+
+            <TextField
+              value={selectedLead?.crm_lead_name}
+            />
+          </FormControl>
+
+          <FormControl fullWidth size="small">
+            <InputLabel id="employee-select-label">Select Employee</InputLabel>
+            <Select
+              labelId="employee-select-label"
+              value={selectedEmployee}
+              onChange={(e) => setSelectedEmployee(e.target.value)}
+              label="Employee"
+            >
+              {employee_all
+                ?.filter((emp) => emp.role === "employee")
+                .map((emp) => (
+                  <MenuItem key={emp.id} value={emp.id}>
+                    {emp.name}
+                  </MenuItem>
+                ))}
+            </Select>
+          </FormControl>
+        </DialogContent>
+
+        <DialogActions sx={{ justifyContent: "flex-end", px: 3, py: 2 }}>
+          <Button
+            onClick={() => setOpenAssignDialog(false)}
+            color="inherit"
+            size="small"
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            size="small"
+            onClick={() => assignLeadMutation.mutate()}
+            disabled={!selectedEmployee}
+          >
+            Assign
+          </Button>
+        </DialogActions>
+      </Dialog>
+
     </div>
   );
 };

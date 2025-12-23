@@ -1,23 +1,44 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import axiosInstance from "../../config/axios";
 import { API_URLS } from "../../config/APIUrls";
 import moment from "moment";
 import CustomTable from "../../Shared/CustomTable";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Button } from "@mui/material";
+import { Button, TextField } from "@mui/material";
+import { FilterAlt } from "@mui/icons-material";
+import { useFormik } from "formik";
+import CustomToPagination from "../../../Shared/Pagination";
 
 const FollowupList = () => {
 
     const location = useLocation();
     const lead = location.state.lead_id
     const navigate = useNavigate();
+    const [currentPage, setCurrentPage] = useState(1);
+    const fk = useFormik({
+        initialValues: {
+            search: "",
+            start_date: "",
+            end_date: "",
+            count: 10,
+        },
+        onSubmit: () => {
+            setCurrentPage(1);
+            refetch();
+        },
+    });
 
-    const { data, isLoading } = useQuery(
-        ["get_follow_up", lead],
+    const { data, isLoading, refetch } = useQuery(
+        ["get_follow_up", lead, fk.values.search, fk.values.start_date, fk.values.end_date, currentPage],
         () =>
             axiosInstance.post(API_URLS.get_followup, {
                 crm_lead_id: lead,
+                search: fk.values.search,
+                start_date: fk.values.start_date,
+                end_date: fk.values.end_date,
+                page: currentPage,
+                count: 10,
             }),
         {
             keepPreviousData: true,
@@ -27,11 +48,11 @@ const FollowupList = () => {
     const allData = data?.data?.response || [];
 
 
-    const tableHead = ["S.No.", "Status", "Remark", "Follow-up Date", "Next Follow-up Date" ];
+    const tableHead = ["S.No.", "Status", "Remark", "Follow-up Date", "Next Follow-up Date"];
 
-    const tableRow = allData?.map((f, idx) => [
+    const tableRow = allData?.data?.map((f, idx) => [
         idx + 1,
-        f.crm_status_name,
+        f.crm_status,
         f.crm_remark || "--",
         f.crm_created_at ? moment(f.crm_created_at).format("YYYY-MM-DD") : "--",
         f.crm_next_followup_date
@@ -42,7 +63,8 @@ const FollowupList = () => {
 
     return (
         <div className="">
-            <div className="flex justify-end my-4">
+            <div className="flex justify-between mb-3">
+                <p className="font-bold text-xl">FollowUp </p>
                 <Button
                     variant="contained"
                     onClick={() => navigate("/create-follow-up", {
@@ -54,7 +76,39 @@ const FollowupList = () => {
                     + Add Followup
                 </Button>
             </div>
+            <div className="flex gap-3 mb-4">
+                <TextField
+                    type="date"
+                    value={fk.values.start_date}
+                    onChange={(e) => fk.setFieldValue("start_date", e.target.value)}
+                />
+                <TextField
+                    type="date"
+                    value={fk.values.end_date}
+                    onChange={(e) => fk.setFieldValue("end_date", e.target.value)}
+                />
+                <TextField
+                    type="search"
+                    placeholder="Search by Status"
+                    name="search"
+                    value={fk.values.search}
+                    onChange={fk.handleChange}
+                />
+                <Button
+                    variant="contained"
+                    startIcon={<FilterAlt />}
+                    onClick={fk.handleSubmit}
+                >
+                    Filter
+                </Button>
+            </div>
+
             <CustomTable tablehead={tableHead} tablerow={tableRow} isLoading={isLoading} />
+            <CustomToPagination
+                page={currentPage}
+                setPage={setCurrentPage}
+                data={allData}
+            />
         </div>
     );
 };

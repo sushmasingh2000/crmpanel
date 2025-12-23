@@ -4,6 +4,7 @@ import FollowupMaster from "../Adminpages/Pages/allmaster/Followup";
 import PropertyMaster from "../Adminpages/Pages/allmaster/Property";
 import ServiceTypeMaster from "../Adminpages/Pages/allmaster/Services";
 import Dashboard from "../Adminpages/Pages/dashboard/Dashboard";
+import EmployeeList from "../Adminpages/Pages/employee/AllEmployee";
 import CreateFollowup from "../Adminpages/Pages/followup/CreateFollowup";
 import FollowupList from "../Adminpages/Pages/followup/FollowupList";
 import AddAddress from "../Adminpages/Pages/fund/AddAddress";
@@ -119,10 +120,10 @@ export const adminroutes = [
     navItem: "Area Master",
   },
   {
-    id: 42,
-    path: "/weeklybonus",
-    component: <WeeklyBonus/>,
-    navItem: "Weekly Recovery",
+    id: 12,
+    path: "/employee_list",
+    component: <EmployeeList/>,
+    navItem: "Employee Detail",
   },
   {
     id: 42,

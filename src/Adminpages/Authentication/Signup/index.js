@@ -1,198 +1,125 @@
 import { Button, TextField } from "@mui/material";
 import { useFormik } from "formik";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { signupSchemaValidataon } from "../../../services/validation";
-import { candidateName } from "../../Services";
-import { useQuery } from "react-query";
-import { endpoint } from "../../../services/urls";
-import { apiConnectorPost } from "../../../services/apiconnector";
-import CustomCircularProgress from "../../../shared/CustomDialogBox";
 import toast from "react-hot-toast";
-import { ClientJS } from 'clientjs';
-
-
+import { API_URLS } from "../../config/APIUrls";
+import axiosInstance from "../../config/axios";
+import Loader from "../../../Shared/Loader";
 
 const SignUp = () => {
-  const client = new ClientJS();
   const navigate = useNavigate();
-  const [loding, setloding] = useState(false);
-  const [visitorId, setVisitorId] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const initialValue = {
+  const initialValues = {
     email: "",
     mobile: "",
     name: "",
     pass: "",
-    confirmpass: "",
-    refid: "",
   };
 
   const fk = useFormik({
-    initialValues: initialValue,
+    initialValues,
     enableReinitialize: true,
-    validationSchema: signupSchemaValidataon,
     onSubmit: () => {
-      if (fk.values.pass !== fk.values.confirmpass)
-        return toast("Password and confirm password should be same.");
-
       const reqBody = {
-        email: fk.values.email,
-        mobile: String(fk.values.mobile) || "",
-        pass: fk.values.pass,
-        confirmpass: fk.values.confirmpass,
-        refid: result?.id,
-        name: fk.values.name,
-        u_finger_id:visitorId,
-        through:1,
-
-      }
-
+        crm_mobile: fk.values.mobile,
+        crm_email: fk.values.email,
+        crm_password: fk.values.pass,
+        crm_name: fk.values.name,
+      };
       signupFunction(reqBody);
     },
   });
+
   const signupFunction = async (reqBody) => {
-    setloding(true);
+    setLoading(true);
     try {
-        const response = await apiConnectorPost(endpoint.signup, reqBody);
-        if ("Registration Successful." === response?.data?.msg) {
-            toast(response?.data?.msg)
-           fk.handleReset();
-        } else {
-            toast(response?.data?.msg);
-        }
+      const response = await axiosInstance.post(API_URLS.emp_registration, reqBody);
+        toast(response?.data?.msg);
+      if (response?.data?.success) {
+        fk.handleReset();
+        navigate("/login");
+      } 
     } catch (e) {
-        console.log(e);
+      console.log(e);
+      toast("Error connecting to server.");
     }
-    setloding(false);
-}
-useEffect(() => {
-  // Initialize FingerprintJS and fetch the visitor ID
-  const fetchVisitorId = async () => {
-    const fingerprint = client.getFingerprint();
-    // const result = await fp.get();
-    setVisitorId(fingerprint);
-    // console.log(fingerprint);
+    setLoading(false);
   };
 
-
-  fetchVisitorId().catch(console.error);
-}, []);
-
-  const { data } = useQuery(
-    ["getname", fk.values.refid],
-    () => candidateName({ userid: fk.values.refid }),
-    {
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-    }
-  );
-  const result = data?.data?.data;
   return (
+    <div className="min-h-screen flex items-center justify-center px-4 py-8 bg-gradient-to-br from-[#397EF3] via-[#060C95] to-[#00008B]">
+      <div className="bg-white/10 backdrop-blur-md shadow-xl rounded-xl p-8 py-10 w-full max-w-2xl border border-white/20">
+        <h2 className="text-3xl font-bold text-white text-center mb-8 tracking-wide">
+          Sign Up
+        </h2>
 
-    <div className="w-[100%]   flex justify-center items-center">
-      <div className=" lg:w-full p-4">
-      <p className="!text-center font-bold !py-4 text-lg">Registration</p>
-        <div className="grid lg:grid-cols-3 grid-cols-1 gap-[6%] gap-y-8 pt-5 w-full">
-        <div className=""> 
-            <p className="font-bold">Name</p>
+        {/* Form Grid */}
+        <form
+          onSubmit={fk.handleSubmit}
+          className="grid grid-cols-1 md:grid-cols-2 gap-6 text-white"
+        >
+          {/* Name */}
+          <div>
+            <p className="font-bold mb-1">Name</p>
             <TextField
               fullWidth
-             
               id="name"
               name="name"
-              placeholder="name"
+              placeholder="Name"
               value={fk.values.name}
               onChange={fk.handleChange}
+              InputProps={{ style: { color: 'white' } }}
             />
-            {fk.touched.name && fk.errors.name && (
-              <div className="error">{fk.errors.name}</div>
-            )}
           </div>
-          <div className=""> 
-            <p className="font-bold"> Phone number</p>
+
+          {/* Phone Number */}
+          <div>
+            <p className="font-bold mb-1">Phone Number</p>
             <TextField
               fullWidth
-             
               type="number"
               id="mobile"
               name="mobile"
-              placeholder="mobile"
+              placeholder="Mobile"
               value={fk.values.mobile}
               onChange={fk.handleChange}
+              InputProps={{ style: { color: 'white' } }}
             />
-            {fk.touched.mobile && fk.errors.mobile && (
-              <div className="error">{fk.errors.mobile}</div>
-            )}
           </div>
-          <div className=""> 
-            <p className="font-bold">Email</p>
+
+          {/* Email */}
+          <div>
+            <p className="font-bold mb-1">Email</p>
             <TextField
               fullWidth
-             
               id="email"
               name="email"
               placeholder="Email"
               value={fk.values.email}
               onChange={fk.handleChange}
+              InputProps={{ style: { color: 'white' } }}
             />
-            {fk.touched.email && fk.errors.email && (
-              <div className="error">{fk.errors.email}</div>
-            )}
           </div>
+
+          {/* Password */}
           <div>
-            <p className="font-bold">Set Password</p>
+            <p className="font-bold mb-1">Password</p>
             <TextField
               fullWidth
-             
+              type="password"
               id="pass"
               name="pass"
-              placeholder="Old Password"
+              placeholder="Password"
               value={fk.values.pass}
               onChange={fk.handleChange}
+              InputProps={{ style: { color: 'white' } }}
             />
-            {fk.touched.pass && fk.errors.pass && (
-              <div className="error">{fk.errors.pass}</div>
-            )}
           </div>
-          <div className=""> 
-            <p className="font-bold">Confirm password</p>
-            <TextField
-              fullWidth
-             
-              id="confirmpass"
-              name="confirmpass"
-              placeholder="confirmpass"
-              value={fk.values.confirmpass}
-              onChange={fk.handleChange}
-            />
-            {fk.touched.confirmpass && fk.errors.confirmpass && (
-              <div className="error">{fk.errors.confirmpass}</div>
-            )}
-          </div>
-          <div>
-            <p className="font-bold"> Referral Code</p>
-            <TextField
-              fullWidth
-             
-              id="refid"
-              name="refid"
-              placeholder=" Referral Code"
-              value={fk.values.refid}
-              onChange={fk.handleChange}
-            />
-          {fk.touched.refid && fk.errors.refid ? (
-                  <div className="error">{fk.errors.refid}</div>
-                ) : fk.values.refid ? (
-                  result ? (
-                    <div className="text-blue-500">Referral From: {result?.full_name}</div>
-                  ) : (
-                    <div className="error">Invalid Referral Id</div>
-                  )
-                ) : null}
-          </div>
-          <div className="flex justify-start !mt-5 gap-3">
+
+          {/* Buttons (span full width) */}
+          <div className="col-span-1 md:col-span-2 flex justify-start gap-3 mt-4">
             <Button
               onClick={() => fk.handleReset()}
               variant="contained"
@@ -201,15 +128,17 @@ useEffect(() => {
               Clear
             </Button>
             <Button
-              onClick={() => fk.handleSubmit()}
+              type="submit"
               variant="contained"
               className="!bg-[#07BC0C]"
             >
               Submit
             </Button>
           </div>
-          <CustomCircularProgress isLoading={loding} />
-        </div>
+        </form>
+
+        {/* Loader */}
+        <Loader isLoading={loading} />
       </div>
     </div>
   );
