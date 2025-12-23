@@ -2,6 +2,7 @@ import React from "react";
 import { useQuery } from "react-query";
 import axiosInstance from "../../config/axios";
 import { API_URLS } from "../../config/APIUrls";
+import { PersonPin } from "@mui/icons-material";
 
 const Dashboard = () => {
   const { data, isLoading, isError } = useQuery(
@@ -17,32 +18,32 @@ const Dashboard = () => {
 
   // Basic fixed cards
   const baseStats = [
-    { label: "Total Leads", value: dashboard.total_leads || 0 },
-    { label: "Total Owners", value: dashboard.total_owners || 0 },
-    { label: "Total Follow-ups", value: dashboard.leads_with_followup || 0 },
+    { label: "Total Leads", icon:<PersonPin className="!h-[3rem] !w-[3rem] !text-[#2a2785]" />, value: dashboard.total_leads || 0 },
+    { label: "Total Owners", icon:<PersonPin className="!h-[3rem] !w-[3rem] !text-[#2a2785]" />, value: dashboard.total_owners || 0 },
+    { label: "Total Follow-ups", icon:<PersonPin className="!h-[3rem] !w-[3rem] !text-[#2a2785]" />, value: dashboard.leads_with_followup || 0 },
   ];
 
   const statusStats = dashboard.status_wise_followup?.map((item) => ({
     label: item.crm_status,
     value: item.total,
+    icon:<PersonPin className="!h-[3rem] !w-[3rem] !text-[#2a2785]" />,
   })) || [];
 
   const stats = [...baseStats, ...statusStats];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
-      {stats.map((item, index) => (
-        <div
-          key={index}
-          className="bg-white/80 rounded-lg shadow-md p-4 border border-gray-300 backdrop-blur-sm"
-        >
-          <p className="text-sm text-gray-500">{item.label}</p>
-          <h3 className="text-lg font-bold text-blue-900">
-            {item.value}
-          </h3>
-        </div>
-      ))}
-    </div>
+    <div className="grid lg:grid-cols-3  sm:grid-cols-1 gap-4 mt-8 ">
+        {stats.map((i) => (
+          <div
+            key={i.id}
+            className="text-center bg-gray-300 rounded-lg py-3  cursor-pointer hover:shadow-lg transition duration-200"
+          >
+            <div className="text-lg pt-1 font-bold">{i.icon}</div>
+            <p className="font-bold text-sm">{i.label}</p>
+            <p className="font-extrabold text-blue-700 text-lg">{i.value}</p>
+          </div>
+        ))}
+      </div>
   );
 };
 
