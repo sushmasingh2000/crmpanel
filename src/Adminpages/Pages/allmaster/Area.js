@@ -15,7 +15,7 @@ import { API_URLS } from "../../config/APIUrls";
 
 import CustomDialog from "../../Shared/CustomDialogBox";
 import CustomTable from "../../Shared/CustomTable";
-import CustomToPagination from "../../../Shared/Pagination";
+import CustomToPagination from "../../Shared/Pagination";
 import CustomFilter from "../../Shared/CustomForFiler";
 import { COUNTRIES } from "../../Shared/CountryList";
 import { STATES } from "../../Shared/StateList";

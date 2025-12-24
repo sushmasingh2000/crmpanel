@@ -8,7 +8,7 @@ import { Edit, Lock } from "@mui/icons-material";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import { useFormik } from "formik";
 import { useLocation, useNavigate } from "react-router-dom";
-import CustomToPagination from "../../../Shared/Pagination";
+import CustomToPagination from "../../Shared/Pagination";
 import toast from "react-hot-toast";
 
 const LeadList = () => {

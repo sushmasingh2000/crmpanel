@@ -16,17 +16,7 @@ export const all_Data = [
     ),
     subcomponent: [],
   },
-    {
-        id: 5,
-        navLink: "/employee_list",
-        navItem: "Employee",
-        navIcon: (
-          <span>
-            <AddToPhotosIcon color="#15317E" fontSize="medium" />
-          </span>
-        ),
-        subcomponent: [],
-      },
+   
    {
     id: 1,
     navLink: "/list-services",
@@ -84,6 +74,17 @@ export const all_Data = [
       
     ],
   },
+   {
+        id: 5,
+        navLink: "/employee_list",
+        navItem: "Employee",
+        navIcon: (
+          <span>
+            <AddToPhotosIcon color="#15317E" fontSize="medium" />
+          </span>
+        ),
+        subcomponent: [],
+      },
   {
     id: 14,
     navLink: "/leads",

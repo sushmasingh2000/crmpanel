@@ -8,7 +8,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Button, TextField } from "@mui/material";
 import { FilterAlt } from "@mui/icons-material";
 import { useFormik } from "formik";
-import CustomToPagination from "../../../Shared/Pagination";
+import CustomToPagination from "../../Shared/Pagination";
 
 const FollowupList = () => {
 

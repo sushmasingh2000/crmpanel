@@ -7,7 +7,7 @@ import { Button, TextField } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import { FilterAlt } from "@mui/icons-material";
-import CustomToPagination from "../../../Shared/Pagination";
+import CustomToPagination from "../../Shared/Pagination";
 
 const PropertyList = () => {
   const navigate = useNavigate();

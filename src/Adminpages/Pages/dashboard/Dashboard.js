@@ -36,7 +36,7 @@ const Dashboard = () => {
         {stats.map((i) => (
           <div
             key={i.id}
-            className="text-center bg-gray-300 rounded-lg py-3  cursor-pointer hover:shadow-lg transition duration-200"
+            className="text-center bg-white bg-opacity-65  rounded-lg py-3  cursor-pointer hover:shadow-lg transition duration-200"
           >
             <div className="text-lg pt-1 font-bold">{i.icon}</div>
             <p className="font-bold text-sm">{i.label}</p>

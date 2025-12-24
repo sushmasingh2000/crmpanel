@@ -15,7 +15,7 @@ import CustomDialog from "../../Shared/CustomDialogBox";
 import CustomFilter from "../../Shared/CustomForFiler";
 import CustomTable from "../../Shared/CustomTable";
 import toast from "react-hot-toast";
-import CustomToPagination from "../../../Shared/Pagination";
+import CustomToPagination from "../../Shared/Pagination";
 
 const ServiceTypeMaster = () => {
   const queryClient = useQueryClient();

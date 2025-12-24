@@ -25,7 +25,7 @@ const CreateLead = () => {
             crm_city: lead?.crm_city || "Lucknow",
             crm_lead_date: lead?.crm_lead_date || "",
             crm_lead_date: lead.crm_lead_date
-                ? lead.crm_lead_date.split("T")[0] // <-- convert to YYYY-MM-DD
+                ? lead.crm_lead_date.split("T")[0]
                 : "",
         },
 
@@ -33,10 +33,8 @@ const CreateLead = () => {
             setLoading(true);
             try {
                 const payload = lead?.id ? { ...values, lead_id: lead.id } : values;
-
                 const res = await axiosInstance.post(API_URLS.create_leads, payload);
                 toast(res.data.message);
-
                 if (res.data.success) {
                     navigate("/leads");
                     fk.resetForm();

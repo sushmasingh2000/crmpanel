@@ -7,7 +7,8 @@ import { useNavigate } from "react-router-dom";
 import { Edit, FilterAlt } from "@mui/icons-material";
 import { useState } from "react";
 import { useFormik } from "formik";
-import CustomToPagination from "../../../Shared/Pagination";
+import CustomToPagination from "../../Shared/Pagination";
+import moment from "moment";
 
 const OwnerList = () => {
     const navigate = useNavigate();
@@ -42,7 +43,7 @@ const OwnerList = () => {
     const owners = data?.data?.response || [];
     
 
-    const tableHead = ["S.No.", "Name", "Mobile", "Area", "PinCode", "Category", "Property"];
+    const tableHead = ["S.No.", "Name", "Mobile", "Area", "PinCode", "Category", "Date", "Property"];
 
     const tableRow = owners?.data?.map((o, index) => [
         index + 1,
@@ -51,6 +52,7 @@ const OwnerList = () => {
         o.crm_area,
         o.crm_pincode,
         o.crm_owner_category,
+        moment(o.crm_created_at)?.format("DD_MM-YYYY"),
         <span><Edit onClick={() => navigate('/list_properties', {
             state: {
                 owner_id: o.id

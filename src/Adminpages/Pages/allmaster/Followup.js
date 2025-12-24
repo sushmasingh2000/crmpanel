@@ -9,7 +9,7 @@ import axiosInstance from "../../config/axios"; // axios with auth
 import CustomDialog from "../../Shared/CustomDialogBox";
 import CustomFilter from "../../Shared/CustomForFiler";
 import CustomTable from "../../Shared/CustomTable";
-import CustomToPagination from "../../../Shared/Pagination";
+import CustomToPagination from "../../Shared/Pagination";
 import toast from "react-hot-toast";
 
 const FollowupMaster = () => {

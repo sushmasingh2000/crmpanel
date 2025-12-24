@@ -8,7 +8,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Button, TextField } from "@mui/material";
 import { Edit, FilterAlt } from "@mui/icons-material";
 import { useFormik } from "formik";
-import CustomToPagination from "../../../Shared/Pagination";
+import CustomToPagination from "../../Shared/Pagination";
 import toast from "react-hot-toast";
 import CustomDialog from "../../Shared/CustomDialogBox";
 
