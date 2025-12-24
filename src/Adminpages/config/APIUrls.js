@@ -1,6 +1,9 @@
 
-export const domain = "http://192.168.18.101:9033"
-export const frontend = "http://192.168.18.101:3000"
+// export const domain = "http://192.168.18.101:9033"
+// export const frontend = "http://192.168.18.101:3000"
+
+export const domain = "https://shreesawariyaproperties.com"
+export const frontend = "https://shreesawariyaproperties.com"
 
 
 export const API_URLS = {

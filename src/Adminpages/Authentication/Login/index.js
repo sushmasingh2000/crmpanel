@@ -96,9 +96,9 @@ const LogIn = () => {
           >
             Login Now
           </button>
-          <p className='text-white text-end text-sm cursor-pointer' onClick={()=>{
+          {/* <p className='text-white text-end text-sm cursor-pointer' onClick={()=>{
             navigate('/sign_up')
-          }}>You don't have an <span className='underline'>Signup ?</span> </p>
+          }}>You don't have an <span className='underline'>Signup ?</span> </p> */}
         </form>
       </div>
     </div>

@@ -7,8 +7,9 @@ import CustomTable from "../../Shared/CustomTable";
 import { Edit, Lock } from "@mui/icons-material";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import { useFormik } from "formik";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import CustomToPagination from "../../../Shared/Pagination";
+import toast from "react-hot-toast";
 
 const LeadList = () => {
   const navigate = useNavigate();
@@ -67,7 +68,7 @@ const LeadList = () => {
         queryClient.invalidateQueries("get_leads");
         setOpenAssignDialog(false);
         setSelectedEmployee("");
-        alert("Lead assigned successfully");
+        toast("Lead assigned successfully");
       },
     }
   );
@@ -87,8 +88,10 @@ const LeadList = () => {
     "FollowUp",
     "Lead Date",
     "Created At",
+    "Action",
   ];
-
+ 
+  // Table row mapping
   const tableRow = allData?.data?.map((lead, index) => {
     const row = [
       index + 1 + (currentPage - 1) * fk.values.count,
@@ -100,7 +103,7 @@ const LeadList = () => {
     ];
 
     if (user_type === "admin") {
-      row.push(lead.assigned_employee_name || "--"); // Employee Name
+      row.push(lead.assigned_employee_name || "--");
     }
 
     row.push(
@@ -130,17 +133,31 @@ const LeadList = () => {
       );
     }
 
+    // Follow-up and lead info
     row.push(
       <Edit
         className="!text-green-600"
-        onClick={() => navigate("/follow-up", { state: { lead_id: lead?.id } })}
+        onClick={() =>
+          navigate("/follow-up", { state: { lead_id: lead.id } })
+        }
       />,
-      lead.crm_lead_date ? moment(lead.crm_lead_date).format("YYYY-MM-DD") : "--",
-      lead.crm_created_at ? moment(lead.crm_created_at).format("YYYY-MM-DD") : "--"
+      lead.crm_lead_date ? moment?.utc(lead.crm_lead_date).format("DD-MM-YYYY") : "--",
+      lead.crm_created_at ? moment?.utc(lead.crm_created_at).format("DD-MM-YYYY") : "--"
+    );
+
+    // Edit lead (pass the lead object via state)
+    row.push(
+      <Edit
+        className="!text-blue-600"
+        onClick={() =>
+          navigate("/add-lead", { state: { lead } }) // pass the current lead
+        }
+      />
     );
 
     return row;
   });
+
 
 
   return (

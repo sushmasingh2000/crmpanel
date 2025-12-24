@@ -17,6 +17,7 @@ const FollowupMaster = () => {
     const [open, setOpen] = useState(false);
     const [editData, setEditData] = useState(null);
     const [page, setPage] = useState(1);
+    
 
     /* ================= FILTER FORM ================= */
     const filterFormik = useFormik({

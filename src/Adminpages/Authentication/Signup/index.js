@@ -39,7 +39,7 @@ const SignUp = () => {
         toast(response?.data?.msg);
       if (response?.data?.success) {
         fk.handleReset();
-        navigate("/login");
+        navigate("/");
       } 
     } catch (e) {
       console.log(e);

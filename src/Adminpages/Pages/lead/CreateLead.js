@@ -1,39 +1,47 @@
-import React, { useState } from "react";
-import { Button, CircularProgress, MenuItem, TextField } from "@mui/material";
+import { Button, MenuItem, TextField } from "@mui/material";
 import { useFormik } from "formik";
+import { useState } from "react";
 import { toast } from "react-hot-toast";
-import axiosInstance from "../../config/axios";
-import { API_URLS } from "../../config/APIUrls";
-import Loader from "../../../Shared/Loader";
 import { useQuery } from "react-query";
-import { ConstructionOutlined } from "@mui/icons-material";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import Loader from "../../../Shared/Loader";
+import { API_URLS } from "../../config/APIUrls";
+import axiosInstance from "../../config/axios";
 
 const CreateLead = () => {
     const [loading, setLoading] = useState(false);
-     const navigate = useNavigate();
+    const navigate = useNavigate();
+    const location = useLocation();
+    const lead = location.state?.lead || {}
+
     const fk = useFormik({
         initialValues: {
-            crm_lead_name: "",
-            crm_mobile: "",
-            crm_email: "",
-            crm_service_type: "",
-            crm_property_type: "",
-            crm_locality: "",
-            crm_city: "Lucknow",
-            crm_lead_date: "",
+            crm_lead_name: lead?.crm_lead_name || "",
+            crm_mobile: lead?.crm_mobile || "",
+            crm_email: lead?.crm_email || "",
+            crm_service_type: lead?.crm_service_type || "",
+            crm_property_type: lead?.crm_property_type || "",
+            crm_locality: lead?.crm_locality || "",
+            crm_city: lead?.crm_city || "Lucknow",
+            crm_lead_date: lead?.crm_lead_date || "",
+            crm_lead_date: lead.crm_lead_date
+                ? lead.crm_lead_date.split("T")[0] // <-- convert to YYYY-MM-DD
+                : "",
         },
 
         onSubmit: async (values) => {
             setLoading(true);
             try {
-                const res = await axiosInstance.post(API_URLS?.create_leads, values);
-                 toast(res.data.message);
-                if (res.data?.success) {
-                   navigate('/leads')
+                const payload = lead?.id ? { ...values, lead_id: lead.id } : values;
+
+                const res = await axiosInstance.post(API_URLS.create_leads, payload);
+                toast(res.data.message);
+
+                if (res.data.success) {
+                    navigate("/leads");
                     fk.resetForm();
                 } else {
-                    toast.error(res.data.message || "Failed to create lead");
+                    toast.error(res.data.message || "Failed to save lead");
                 }
             } catch (e) {
                 console.error(e);
@@ -43,12 +51,13 @@ const CreateLead = () => {
         },
     });
 
+
     const { data: serviceList } = useQuery(
         ["get_service_type_master"],
         () =>
             axiosInstance.post(API_URLS.get_service_type, {
                 count: 10000000000,
-                status:1
+                status: 1
             }),
         {
             refetchOnWindowFocus: false,
@@ -57,7 +66,7 @@ const CreateLead = () => {
 
     const services = serviceList?.data?.response || [];
 
-    const {  data: propertyList } = useQuery(
+    const { data: propertyList } = useQuery(
         ["get_property_master"],
         () =>
             axiosInstance.post(API_URLS.get_property_master, {
@@ -69,11 +78,12 @@ const CreateLead = () => {
 
     const properties = propertyList?.data?.response || [];
 
+
     return (
         <div className="flex justify-center items-center w-full p-5">
             <Loader isLoading={loading} />
             <div className=" rounded-lg p-5 w-full max-w-3xl bg-white bg-opacity-45">
-                <p className="text-center font-bold text-lg mb-5">Create Lead</p>
+                <p className="text-center font-bold text-lg mb-5">    {lead?.id ? "Update Lead" : "Create Lead"} </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <TextField
                         fullWidth
@@ -171,7 +181,7 @@ const CreateLead = () => {
                         Clear
                     </Button>
                     <Button variant="contained" color="success" onClick={fk.handleSubmit}>
-                        Submit
+                        {lead?.id ? "Update" : "Submit"}
                     </Button>
                 </div>
             </div>

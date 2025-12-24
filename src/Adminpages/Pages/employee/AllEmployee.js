@@ -6,14 +6,21 @@ import moment from "moment";
 import CustomTable from "../../Shared/CustomTable";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button, TextField } from "@mui/material";
-import { FilterAlt } from "@mui/icons-material";
+import { Edit, FilterAlt } from "@mui/icons-material";
 import { useFormik } from "formik";
 import CustomToPagination from "../../../Shared/Pagination";
+import toast from "react-hot-toast";
+import CustomDialog from "../../Shared/CustomDialogBox";
 
 const EmployeeList = () => {
 
     const location = useLocation();
     const navigate = useNavigate();
+    const [open, setOpen] = useState(false);
+
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => setOpen(false);
+
     const [currentPage, setCurrentPage] = useState(1);
     const fk = useFormik({
         initialValues: {
@@ -44,22 +51,89 @@ const EmployeeList = () => {
     );
     const allData = data?.data?.data || [];
 
+    const initialValues = {
+        email: "",
+        mobile: "",
+        name: "",
+        pass: "",
+    };
 
-    const tableHead = ["S.No.", "Name", "Email", "Mobile"];
+    const formik = useFormik({
+        initialValues,
+        onSubmit: () => {
+            const reqBody = {
+                crm_mobile: formik.values.mobile,
+                crm_email: formik.values.email,
+                crm_password: formik.values.pass,
+                crm_name: formik.values.name,
+            };
+            EmployeeReg(reqBody);
+        },
+    });
 
+
+    const EmployeeReg = async (reqBody) => {
+        try {
+            const payload = editingEmployee
+                ? { ...reqBody, employee_id: editingEmployee.id }
+                : reqBody;
+
+            const response = await axiosInstance.post(
+                API_URLS.emp_registration,
+                payload
+            );
+            toast(response?.data?.msg);
+            if (response?.data?.success) {
+                formik.resetForm();
+                setEditingEmployee(null);
+                handleClose();
+                refetch();
+            }
+        } catch (e) {
+            console.log(e);
+            toast("Error connecting to server.");
+        }
+    };
+    const [editingEmployee, setEditingEmployee] = useState(null);
+
+    const handleEdit = (employee) => {
+        setEditingEmployee(employee);
+        formik.setValues({
+            name: employee.name || "",
+            email: employee.email || "",
+            mobile: employee.mobile || "",
+            pass: employee.password || "",
+        });
+        setOpen(true);
+    };
+
+    const tableHead = ["S.No.", "Name", "Email", "Mobile", "Password", "Action"];
     const tableRow = allData?.map((f, idx) => [
         idx + 1,
         f.name,
         f.email || "--",
         f.mobile || "--",
+        f.password || "--",
+        <Edit
+            style={{ cursor: "pointer" , color: "green"}}
+            onClick={() => handleEdit(f)}
+        />,
+
     ]);
 
 
     return (
         <div className="">
             <div className="flex justify-between mb-3">
-                <p className="font-bold text-xl">Employee Details </p>
-                
+                <p className="font-bold text-xl">Employee Details</p>
+
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleOpen}
+                >
+                    +  Add Employee
+                </Button>
             </div>
             <div className="flex gap-3 mb-4">
                 <TextField
@@ -74,7 +148,7 @@ const EmployeeList = () => {
                 />
                 <TextField
                     type="search"
-                    placeholder="Search by Status"
+                    placeholder="Search by ....."
                     name="search"
                     value={fk.values.search}
                     onChange={fk.handleChange}
@@ -94,6 +168,24 @@ const EmployeeList = () => {
                 setPage={setCurrentPage}
                 data={allData}
             />
+            <CustomDialog
+                open={open}
+                onClose={() => {
+                    handleClose();
+                    setEditingEmployee(null); 
+                }}
+                onSubmit={formik.handleSubmit}
+                title={editingEmployee ? "Edit Employee" : "Add Employee"}
+                formik={formik}
+                fields={[
+                    { name: "name", label: "Name", type: "text" },
+                    { name: "email", label: "Email", type: "email" },
+                    { name: "mobile", label: "Mobile", type: "text" },
+                    { name: "pass", label: "Password", type: "password" },
+                ]}
+            />
+
+
         </div>
     );
 };
