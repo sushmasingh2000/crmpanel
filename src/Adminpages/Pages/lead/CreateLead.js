@@ -23,7 +23,6 @@ const CreateLead = () => {
             crm_property_type: lead?.crm_property_type || "",
             crm_locality: lead?.crm_locality || "",
             crm_city: lead?.crm_city || "Lucknow",
-            crm_lead_date: lead?.crm_lead_date || "",
             crm_lead_date: lead.crm_lead_date
                 ? lead.crm_lead_date.split("T")[0]
                 : "",

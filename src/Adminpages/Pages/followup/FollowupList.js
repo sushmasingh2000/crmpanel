@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { useQuery } from "react-query";
-import axiosInstance from "../../config/axios";
-import { API_URLS } from "../../config/APIUrls";
-import moment from "moment";
-import CustomTable from "../../Shared/CustomTable";
-import { useLocation, useNavigate } from "react-router-dom";
-import { Button, TextField } from "@mui/material";
 import { FilterAlt } from "@mui/icons-material";
+import { Button, TextField } from "@mui/material";
 import { useFormik } from "formik";
+import moment from "moment";
+import { useState } from "react";
+import { useQuery } from "react-query";
+import { useLocation, useNavigate } from "react-router-dom";
+import { API_URLS } from "../../config/APIUrls";
+import axiosInstance from "../../config/axios";
+import CustomTable from "../../Shared/CustomTable";
 import CustomToPagination from "../../Shared/Pagination";
 
 const FollowupList = () => {

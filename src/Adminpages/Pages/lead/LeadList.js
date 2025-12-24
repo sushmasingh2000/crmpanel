@@ -1,15 +1,15 @@
-import React, { useState } from "react";
-import { TextField, Button, Dialog, DialogTitle, DialogContent, DialogActions, MenuItem, Select, FormControl, InputLabel } from "@mui/material";
-import axiosInstance from "../../config/axios";
-import { API_URLS } from "../../config/APIUrls";
-import moment from "moment";
-import CustomTable from "../../Shared/CustomTable";
 import { Edit, Lock } from "@mui/icons-material";
-import { useQuery, useMutation, useQueryClient } from "react-query";
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, Select, TextField } from "@mui/material";
 import { useFormik } from "formik";
-import { useLocation, useNavigate } from "react-router-dom";
-import CustomToPagination from "../../Shared/Pagination";
+import moment from "moment";
+import { useState } from "react";
 import toast from "react-hot-toast";
+import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useNavigate } from "react-router-dom";
+import { API_URLS } from "../../config/APIUrls";
+import axiosInstance from "../../config/axios";
+import CustomTable from "../../Shared/CustomTable";
+import CustomToPagination from "../../Shared/Pagination";
 
 const LeadList = () => {
   const navigate = useNavigate();
@@ -28,7 +28,7 @@ const LeadList = () => {
   });
 
   // Fetch leads
-  const { data: leadsData, isLoading, refetch } = useQuery(
+  const { data: leadsData, isLoading } = useQuery(
     ["get_leads", fk.values.search, fk.values.start_date, fk.values.end_date, currentPage],
     () =>
       axiosInstance.post(API_URLS.lead_list, {

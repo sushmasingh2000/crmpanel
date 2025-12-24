@@ -2,24 +2,22 @@ import { Add, Edit } from "@mui/icons-material";
 import {
   Button,
   IconButton,
-  Switch,
-  Grid,
+  Switch
 } from "@mui/material";
 import { useFormik } from "formik";
 import moment from "moment";
 import { useState } from "react";
-import { useQuery, useQueryClient } from "react-query";
 import toast from "react-hot-toast";
-import axiosInstance from "../../config/axios";
+import { useQuery, useQueryClient } from "react-query";
 import { API_URLS } from "../../config/APIUrls";
-
+import axiosInstance from "../../config/axios";
+import { CITIES } from "../../Shared/CityList";
+import { COUNTRIES } from "../../Shared/CountryList";
 import CustomDialog from "../../Shared/CustomDialogBox";
+import CustomFilter from "../../Shared/CustomForFiler";
 import CustomTable from "../../Shared/CustomTable";
 import CustomToPagination from "../../Shared/Pagination";
-import CustomFilter from "../../Shared/CustomForFiler";
-import { COUNTRIES } from "../../Shared/CountryList";
 import { STATES } from "../../Shared/StateList";
-import { CITIES } from "../../Shared/CityList";
 
 
 const AreaMaster = () => {
