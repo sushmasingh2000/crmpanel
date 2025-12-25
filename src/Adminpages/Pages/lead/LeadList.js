@@ -78,19 +78,23 @@ const LeadList = () => {
     "Name",
     "Mobile",
     "Email",
-    "Service Type",
-    "Property Type",
-    ...(user_type === "admin" ? ["Employee Name"] : []),
+    "Service ",
+    "Property ",
+    ...(user_type === "admin" ? ["Seller Name"] : []),
     "Locality",
     "City",
+    "BHK",
+    "Price",
+    "Building",
+    "Address",
+    "Project ID",
     "Status",
-    ...(user_type === "admin" ? ["Action"] : []),
     "FollowUp",
     "Lead Date",
     "Created At",
     "Action",
   ];
- 
+
   // Table row mapping
   const tableRow = allData?.data?.map((lead, index) => {
     const row = [
@@ -101,22 +105,11 @@ const LeadList = () => {
       lead.crm_service_type,
       lead.crm_property_type,
     ];
-
-    if (user_type === "admin") {
-      row.push(lead.assigned_employee_name || "--");
-    }
-
-    row.push(
-      lead.crm_locality,
-      lead.crm_city,
-      lead.current_status || "--"
-    );
-
     if (user_type === "admin") {
       row.push(
         <span className="flex justify-center">
           {lead.assigned_employee_name ? (
-            <Lock />
+            <span>  {lead?.assigned_employee_name} </span>
           ) : (
             <Button
               size="small"
@@ -133,7 +126,30 @@ const LeadList = () => {
       );
     }
 
-    // Follow-up and lead info
+    row.push(
+      lead.crm_locality,
+      lead.crm_city,
+      lead.crm_bhk || "--",
+      lead.crm_price || "--",
+      lead.crm_building || "--",
+      lead.crm_address || "--",
+      <span>
+        { lead?.property_id ? (
+        <span>{lead?.property_id}</span>
+        ) : (
+        <Button
+          size="small"
+          variant="outlined"
+          onClick={() => {
+            navigate("/list-owner", { state: { lead_id: lead.id, lead_name: lead.crm_lead_name } });
+          }}
+        >
+          Select Property
+        </Button>
+        )}</span>,
+      lead.current_status || "--",
+    );
+    // Follow-up column
     row.push(
       <Edit
         className="!text-green-600"
@@ -141,23 +157,22 @@ const LeadList = () => {
           navigate("/follow-up", { state: { lead_id: lead.id } })
         }
       />,
-      lead.crm_lead_date ? moment?.utc(lead.crm_lead_date).format("DD-MM-YYYY") : "--",
-      lead.crm_created_at ? moment?.utc(lead.crm_created_at).format("DD-MM-YYYY") : "--"
+      lead.crm_lead_date ? moment.utc(lead.crm_lead_date).format("DD-MM-YYYY") : "--",
+      lead.crm_created_at ? moment.utc(lead.crm_created_at).format("DD-MM-YYYY") : "--"
     );
 
-    // Edit lead (pass the lead object via state)
+    // Edit lead
     row.push(
       <Edit
         className="!text-blue-600"
         onClick={() =>
-          navigate("/add-lead", { state: { lead } }) // pass the current lead
+          navigate("/add-lead", { state: { lead } })
         }
       />
     );
 
     return row;
   });
-
 
 
   return (

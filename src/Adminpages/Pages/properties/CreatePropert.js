@@ -31,7 +31,7 @@ const CreateProperty = () => {
         );
         if (res.data.success) {
           toast.success(res.data.message);
-          navigate("/list_properties");
+          navigate("/list-owner");
         }
       } catch (err) {
         toast.error("Failed to create property");
@@ -75,7 +75,7 @@ const CreateProperty = () => {
           fullWidth
         >
           {properties?.data?.map((item) => (
-            <MenuItem key={item.property_type_id} value={item.property_type_name}>
+            <MenuItem key={item.property_type_id} value={item.property_type_id}>
               {item.property_type_name}
             </MenuItem>
           ))}
@@ -123,6 +123,8 @@ const CreateProperty = () => {
         >
           <MenuItem value="Available">Available</MenuItem>
           <MenuItem value="Rented">Rented</MenuItem>
+          <MenuItem value="Not Answering">Not Answering</MenuItem>
+          <MenuItem value="Rejected">Rejected</MenuItem>
         </TextField>
       </div>
 

@@ -4,9 +4,9 @@ import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { useQuery } from "react-query";
 import { useLocation, useNavigate } from "react-router-dom";
-import Loader from "../../../Shared/Loader";
 import { API_URLS } from "../../config/APIUrls";
 import axiosInstance from "../../config/axios";
+import Loader from "../../Shared/Loader";
 
 const CreateLead = () => {
     const [loading, setLoading] = useState(false);
@@ -23,9 +23,11 @@ const CreateLead = () => {
             crm_property_type: lead?.crm_property_type || "",
             crm_locality: lead?.crm_locality || "",
             crm_city: lead?.crm_city || "Lucknow",
-            crm_lead_date: lead.crm_lead_date
-                ? lead.crm_lead_date.split("T")[0]
-                : "",
+            crm_lead_date: lead.crm_lead_date ? lead.crm_lead_date.split("T")[0] : "",
+            crm_bhk: lead?.crm_bhk || "",
+            crm_price: lead?.crm_price || "",
+            crm_building: lead?.crm_building || "",
+            crm_address: lead?.crm_address || "",
         },
 
         onSubmit: async (values) => {
@@ -47,6 +49,7 @@ const CreateLead = () => {
             setLoading(false);
         },
     });
+
 
 
     const { data: serviceList } = useQuery(
@@ -79,9 +82,10 @@ const CreateLead = () => {
     return (
         <div className="flex justify-center items-center w-full p-5">
             <Loader isLoading={loading} />
-            <div className=" rounded-lg p-5 w-full max-w-3xl bg-white bg-opacity-45">
-                <p className="text-center font-bold text-lg mb-5">    {lead?.id ? "Update Lead" : "Create Lead"} </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className=" rounded-lg p-5 w-full lg:max-w-6xl bg-white bg-opacity-45">
+                <p className="text-center font-bold text-lg mb-5">
+                    {lead?.id ? "Update Lead" : "Create Lead"} </p>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                     <TextField
                         fullWidth
                         label="Lead Name"
@@ -172,6 +176,39 @@ const CreateLead = () => {
                         error={fk.touched.crm_lead_date && Boolean(fk.errors.crm_lead_date)}
                         helperText={fk.touched.crm_lead_date && fk.errors.crm_lead_date}
                     />
+                    <TextField
+                        fullWidth
+                        label="BHK"
+                        name="crm_bhk"
+                        value={fk.values.crm_bhk}
+                        onChange={fk.handleChange}
+                    />
+
+                    <TextField
+                        fullWidth
+                        type="number"
+                        label="Price"
+                        name="crm_price"
+                        value={fk.values.crm_price}
+                        onChange={fk.handleChange}
+                    />
+
+                    <TextField
+                        fullWidth
+                        label="Building (Optional)"
+                        name="crm_building"
+                        value={fk.values.crm_building}
+                        onChange={fk.handleChange}
+                    />
+
+                    <TextField
+                        fullWidth
+                        label="Address (Optional)"
+                        name="crm_address"
+                        value={fk.values.crm_address}
+                        onChange={fk.handleChange}
+                    />
+
                 </div>
                 <div className="flex justify-end gap-3 mt-5">
                     <Button variant="contained" color="error" onClick={() => fk.resetForm()}>

@@ -5,6 +5,7 @@ import { API_URLS } from '../../config/APIUrls';
 import axiosInstance from '../../config/axios';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import Loader from '../../Shared/Loader';
 
 const LogIn = () => {
   const [loding, setloding] = useState(false);
@@ -46,7 +47,7 @@ const LogIn = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-8 bg-gradient-to-br from-[#397EF3] via-[#060C95] to-[#00008B]">
-      {/* <CustomCircularProgress isLoading={loding} /> */}
+      <Loader isLoading={loding} />
       <div className="bg-white/10 backdrop-blur-md shadow-xl rounded-xl p-8 py-10 w-full max-w-md border border-white/20">
         <h2 className="text-3xl font-bold text-white text-center mb-8 tracking-wide">
           Welcome Back

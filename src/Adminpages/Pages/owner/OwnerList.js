@@ -3,7 +3,7 @@ import { useQuery } from "react-query";
 import axiosInstance from "../../config/axios";
 import { API_URLS } from "../../config/APIUrls";
 import CustomTable from "../../Shared/CustomTable";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Edit, FilterAlt } from "@mui/icons-material";
 import { useState } from "react";
 import { useFormik } from "formik";
@@ -13,6 +13,12 @@ import moment from "moment";
 const OwnerList = () => {
     const navigate = useNavigate();
     const [currentPage, setCurrentPage] = useState(1);
+    const location = useLocation();
+    const lead_id = location.state?.lead_id;
+    const lead_name = location.state?.lead_name;
+ 
+
+
     const fk = useFormik({
         initialValues: {
             search: "",
@@ -41,7 +47,7 @@ const OwnerList = () => {
     );
 
     const owners = data?.data?.response || [];
-    
+
 
     const tableHead = ["S.No.", "Name", "Mobile", "Area", "PinCode", "Category", "Date", "Property"];
 
@@ -52,10 +58,12 @@ const OwnerList = () => {
         o.crm_area,
         o.crm_pincode,
         o.crm_owner_category,
-        moment(o.crm_created_at)?.format("DD_MM-YYYY"),
+        moment(o.crm_created_at)?.format("DD-MM-YYYY"),
         <span><Edit onClick={() => navigate('/list_properties', {
             state: {
-                owner_id: o.id
+                owner_id: o.id,
+                 lead_id: lead_id,
+                 lead_name:lead_name
             }
         })} /></span>
     ]);

@@ -1,9 +1,9 @@
 
-export const domain = "http://192.168.18.101:9012"
-export const frontend = "http://192.168.18.101:3000"
+// export const domain = "http://192.168.18.101:9012"
+// export const frontend = "http://192.168.18.101:3000"
 
-// export const domain = "https://shreesawariyaproperties.com"
-// export const frontend = "https://shreesawariyaproperties.com"
+export const domain = "https://shreesawariyaproperties.com"
+export const frontend = "https://shreesawariyaproperties.com"
 
 
 export const API_URLS = {
@@ -51,5 +51,13 @@ export const API_URLS = {
   update_area: `${domain}/api/v1/update-area`,
   toggle_area: `${domain}/api/v1/update-area-status`,
 
-  assign_lead:`${domain}/api/v1/assign-lead-to-employee`
+  assign_lead:`${domain}/api/v1/assign-lead-to-employee`,
+  assign_property:`${domain}/api/v1/assign-property-to-lead`,
+
+
+
+  employee_excel:`${domain}/api/v1/employee-excel`,
+
+ 
+  
 };
