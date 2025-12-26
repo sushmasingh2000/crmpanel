@@ -9,9 +9,8 @@ import CreateFollowup from "../Adminpages/Pages/followup/CreateFollowup";
 import FollowupList from "../Adminpages/Pages/followup/FollowupList";
 import CreateLead from "../Adminpages/Pages/lead/CreateLead";
 import LeadList from "../Adminpages/Pages/lead/LeadList";
-import CreateOwner from "../Adminpages/Pages/owner/CreateOwner";
 import OwnerList from "../Adminpages/Pages/owner/OwnerList";
-import CreateProperty from "../Adminpages/Pages/properties/CreatePropert";
+import ALlOwnerProperty from "../Adminpages/Pages/properties/AllOwnerProperty";
 import PropertyList from "../Adminpages/Pages/properties/ListProperties";
 
 
@@ -59,18 +58,13 @@ export const adminroutes = [
     component: <PropertyList/>,
     navItem: "List Property",
   },
-  {
-    id: 5,
-    path: "/create-property",
-    component: <CreateProperty/>,
-    navItem: "Create Property",
-  },
    {
-    id: 6,
-    path: "/create-owner",
-    component: <CreateOwner/>,
-    navItem: "Create Owner",
+    id: 4,
+    path: "/owner_list_properties",
+    component: <ALlOwnerProperty/>,
+    navItem: "Owner Property",
   },
+ 
     {
     id: 7,
     path: "/list-owner",

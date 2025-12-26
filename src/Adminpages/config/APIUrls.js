@@ -1,9 +1,9 @@
 
-// export const domain = "http://192.168.18.101:9012"
-// export const frontend = "http://192.168.18.101:3000"
+export const domain = "http://192.168.18.101:9012"
+export const frontend = "http://192.168.18.101:3000"
 
-export const domain = "https://shreesawariyaproperties.com"
-export const frontend = "https://shreesawariyaproperties.com"
+// export const domain = "https://shreesawariyaproperties.com"
+// export const frontend = "https://shreesawariyaproperties.com"
 
 
 export const API_URLS = {
@@ -27,6 +27,8 @@ export const API_URLS = {
 
   create_properties: `${domain}/api/v1/create-properties`,
   get_properties: `${domain}/api/v1/get-properties`,
+  get_all_properties_owner: `${domain}/api/v1/get-all-properties-owner`,
+  
   update_properties: `${domain}/api/v1/update-properties`,
   delete_properties: `${domain}/api/v1/delete-properties`,
 
@@ -55,7 +57,7 @@ export const API_URLS = {
   assign_property:`${domain}/api/v1/assign-property-to-lead`,
 
 
-
+  master_bhk: `${domain}/api/v1/get-bhk-master`,
   employee_excel:`${domain}/api/v1/employee-excel`,
 
  

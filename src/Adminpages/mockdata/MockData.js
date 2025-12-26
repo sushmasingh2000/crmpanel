@@ -4,7 +4,7 @@ import DashboardCustomizeIcon from "@mui/icons-material/DashboardCustomize";
 const user_type = localStorage.getItem("type")
 
 export const all_Data = [
- 
+
   {
     id: 2,
     navLink: "/admindashboard",
@@ -16,8 +16,8 @@ export const all_Data = [
     ),
     subcomponent: [],
   },
-   
-   {
+
+  {
     id: 1,
     navLink: "/list-services",
     navItem: "Master",
@@ -38,7 +38,7 @@ export const all_Data = [
         ),
         subcomponent: [],
       },
-       {
+      {
         id: 1.3,
         navLink: "/list-property-master",
         navItem: " Property",
@@ -60,7 +60,7 @@ export const all_Data = [
       //   ),
       //   subcomponent: [],
       // },
-       {
+      {
         id: 1.4,
         navLink: "/list_area",
         navItem: "Area",
@@ -71,24 +71,13 @@ export const all_Data = [
         ),
         subcomponent: [],
       },
-      
+
     ],
   },
-   {
-        id: 5,
-        navLink: "/employee_list",
-        navItem: "Employee",
-        navIcon: (
-          <span>
-            <AddToPhotosIcon color="#15317E" fontSize="medium" />
-          </span>
-        ),
-        subcomponent: [],
-      },
   {
-    id: 14,
-    navLink: "/leads",
-    navItem: " Leads ",
+    id: 5,
+    navLink: "/employee_list",
+    navItem: "Employee",
     navIcon: (
       <span>
         <AddToPhotosIcon color="#15317E" fontSize="medium" />
@@ -96,6 +85,19 @@ export const all_Data = [
     ),
     subcomponent: [],
   },
+
+  {
+    id: 14,
+    navLink: "/owner_list_properties",
+    navItem: " Properties ",
+    navIcon: (
+      <span>
+        <AddToPhotosIcon color="#15317E" fontSize="medium" />
+      </span>
+    ),
+    subcomponent: [],
+  },
+
   {
     id: 4,
     navLink: "/list-owner",
@@ -107,13 +109,24 @@ export const all_Data = [
     ),
     subcomponent: [],
   },
+  {
+    id: 14,
+    navLink: "/leads",
+    navItem: " Leads ",
+    navIcon: (
+      <span>
+        <AddToPhotosIcon color="#15317E" fontSize="medium" />
+      </span>
+    ),
+    subcomponent: [],
+  },
 
 ]?.filter((i) => {
   if (user_type === "admin") return true;
 
   if (user_type === "employee") {
-    return  i.navItem !== "Employee";
+    return i.navItem !== "Employee";
   }
-// i.navItem !== "Master" &&
+  // i.navItem !== "Master" &&
   return false;
 });
