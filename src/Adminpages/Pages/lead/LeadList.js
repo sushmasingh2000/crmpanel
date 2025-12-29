@@ -10,6 +10,7 @@ import { API_URLS } from "../../config/APIUrls";
 import axiosInstance from "../../config/axios";
 import CustomTable from "../../Shared/CustomTable";
 import CustomToPagination from "../../Shared/Pagination";
+import Swal from "sweetalert2";
 
 const LeadList = () => {
   const navigate = useNavigate();
@@ -73,6 +74,51 @@ const LeadList = () => {
     }
   );
 
+
+  const handleExcelUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    // Confirmation popup (without initial loading)
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "Do you want to upload this Excel file?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, upload it!",
+      cancelButtonText: "Cancel",
+      allowOutsideClick: false,
+      allowEscapeKey: false
+    });
+
+    if (result.isConfirmed) {
+      // Show loading **after user confirms**
+      Swal.fire({
+        title: "Uploading...",
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      try {
+        await axiosInstance.post(API_URLS.upload_leads_excel, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        Swal.close();
+        Swal.fire("Uploaded!", "Leads uploaded successfully.", "success");
+        queryClient.invalidateQueries("get_leads");
+      } catch (error) {
+        Swal.close();
+        Swal.fire("Error!", "Excel upload failed.", "error");
+      }
+    }
+  };
+
+
+
   const tableHead = [
     "Id",
     "Name",
@@ -80,95 +126,96 @@ const LeadList = () => {
     "Email",
     "Service ",
     "Property ",
-    ...(user_type === "admin" ? ["Seller Name"] : []),
+    // ...(user_type === "admin" ? ["Seller Name"] : []),
     "Locality",
     "City",
     "BHK",
     "Price",
     "Building",
     "Address",
-    "Project ID",
-    "Status",
-    "FollowUp",
-    "Lead Date",
+    // "Project ID",
+    "Primary Status",
+    "Sec. Status",
     "Created At",
+    "FollowUp",
     "Action",
+
   ];
 
   // Table row mapping
   const tableRow = allData?.data?.map((lead, index) => {
     const row = [
       index + 1 + (currentPage - 1) * fk.values.count,
-      lead.crm_lead_name,
-      lead.crm_mobile,
-      lead.crm_email,
-      lead.crm_service_type,
-      lead.crm_property_type,
+      lead.crm_lead_name || "--",
+      lead.crm_mobile || "--",
+      lead.crm_email || "--",
+      lead.crm_service_type || "--",
+      lead.crm_property_type || "--",
     ];
-    if (user_type === "admin") {
-      row.push(
-        <span className="flex justify-center">
-          {lead.assigned_employee_name ? (
-            <span>  {lead?.assigned_employee_name} </span>
-          ) : (
-            <Button
-              size="small"
-              variant="outlined"
-              onClick={() => {
-                setSelectedLead(lead);
-                setOpenAssignDialog(true);
-              }}
-            >
-              Assign
-            </Button>
-          )}
-        </span>
-      );
-    }
+    // if (user_type === "admin") {
+    //   row.push(
+    //     <span className="flex justify-center">
+    //       {lead.assigned_employee_name ? (
+    //         <span>  {lead?.assigned_employee_name} </span>
+    //       ) : (
+    //         <Button
+    //           size="small"
+    //           variant="outlined"
+    //           onClick={() => {
+    //             setSelectedLead(lead);
+    //             setOpenAssignDialog(true);
+    //           }}
+    //         >
+    //           Assign
+    //         </Button>
+    //       )}
+    //     </span>
+    //   );
+    // }
 
     row.push(
-      lead.crm_locality,
-      lead.crm_city,
+      lead.crm_locality || "--",
+      lead.crm_city || "--",
       lead.crm_bhk || "--",
       lead.crm_price || "--",
       lead.crm_building || "--",
       lead.crm_address || "--",
-      <span>
-        { lead?.property_id ? (
-        <span>{lead?.property_id}</span>
-        ) : (
-        <Button
-          size="small"
-          variant="outlined"
-          onClick={() => {
-            navigate("/list-owner", { state: { lead_id: lead.id, lead_name: lead.crm_lead_name } });
-          }}
-        >
-          Select Property
-        </Button>
-        )}</span>,
+      // <span>
+      //   {lead?.property_id ? (
+      //     <span>{lead?.property_id}</span>
+      //   ) : (
+      //     <Button
+      //       size="small"
+      //       variant="outlined"
+      //       onClick={() => {
+      //         navigate("/list-owner", { state: { lead_id: lead.id, lead_name: lead.crm_lead_name } });
+      //       }}
+      //     >
+      //       Select Property
+      //     </Button>
+      //   )}</span>,
       lead.current_status || "--",
     );
     // Follow-up column
     row.push(
-      <Edit
-        className="!text-green-600"
-        onClick={() =>
-          navigate("/follow-up", { state: { lead_id: lead.id } })
-        }
-      />,
-      lead.crm_lead_date ? moment.utc(lead.crm_lead_date).format("DD-MM-YYYY") : "--",
-      lead.crm_created_at ? moment.utc(lead.crm_created_at).format("DD-MM-YYYY") : "--"
+      lead.crm_secondary_status || "--",
+      lead.crm_created_at ? moment.utc(lead.crm_created_at).format("DD-MM-YYYY HH:mm:ss") : "--"
     );
 
     // Edit lead
     row.push(
-      <Edit
-        className="!text-blue-600"
+      <Button
+        className="!bg-green-600 !text-white"
+        onClick={() =>
+          navigate("/follow-up", { state: { lead_id: lead.id } })
+        }
+      > View </Button>,
+      <Button
+        className="!bg-blue-600 !text-white"
         onClick={() =>
           navigate("/add-lead", { state: { lead } })
         }
-      />
+      > Edit </Button>
     );
 
     return row;
@@ -179,11 +226,20 @@ const LeadList = () => {
     <div>
       <div className="flex justify-between mb-4">
         <p className="font-bold text-xl">Leads</p>
-        {user_type === "admin" && (
+        <div className="flex justify-end gap-5">
+          <Button variant="outlined" component="label">
+            Upload Excel
+            <input
+              type="file"
+              hidden
+              accept=".xlsx,.xls"
+              onChange={(e) => handleExcelUpload(e)}
+            />
+          </Button>
           <Button variant="contained" onClick={() => navigate("/add-lead")}>
             + Add Lead
           </Button>
-        )}
+        </div>
       </div>
 
       <div className="flex gap-3 mb-4">
@@ -208,7 +264,7 @@ const LeadList = () => {
 
       <CustomTable tablehead={tableHead} tablerow={tableRow} isLoading={isLoading} />
 
-      <CustomToPagination page={currentPage} setPage={setCurrentPage} totalPage={allData} />
+      <CustomToPagination page={currentPage} setPage={setCurrentPage} data={allData} />
       <Dialog
         open={openAssignDialog}
         onClose={() => setOpenAssignDialog(false)}

@@ -232,7 +232,7 @@ const AllOwnerProperty = () => {
         "Created At",
     ];
 
-    const tableRow = allData.map((prop, index) => [
+    const tableRow = allData?.map((prop, index) => [
         index + 1,
         prop.crm_property_unique_id || "--",
         prop.crm_owner_name || "--",
@@ -255,36 +255,38 @@ const AllOwnerProperty = () => {
     return (
         <div>
             <p className="font-bold text-xl mb-4">Property</p>
-
-            {/* FILTERS */}
-            <div className="flex gap-3 mb-4 flex-wrap">
+            <div className="flex gap-2 mb-4 flex-nowrap overflow-x-auto !my-5">
                 <TextField
+                    size="small"
                     type="date"
                     value={fk.values.start_date}
                     onChange={(e) => fk.setFieldValue("start_date", e.target.value)}
                 />
 
                 <TextField
+                    size="small"
                     type="date"
                     value={fk.values.end_date}
                     onChange={(e) => fk.setFieldValue("end_date", e.target.value)}
                 />
 
                 <TextField
+                    size="small"
                     type="search"
                     placeholder="Search name / mobile"
                     name="search"
                     value={fk.values.search}
                     onChange={fk.handleChange}
+                    sx={{ minWidth: 200 }}
                 />
-            </div>
-            <div className="flex gap-3 mb-4 flex-wrap">
+
                 <TextField
+                    size="small"
                     select
-                    label="Select Property"
+                    label="Property"
                     value={fk.values.property_type}
                     onChange={(e) => fk.setFieldValue("property_type", e.target.value)}
-                    sx={{ minWidth: 160 }}
+                    sx={{ minWidth: 140 }}
                 >
                     <MenuItem value="">All</MenuItem>
                     {properties.data?.map((p) => (
@@ -295,11 +297,12 @@ const AllOwnerProperty = () => {
                 </TextField>
 
                 <TextField
+                    size="small"
                     select
-                    label="Select Service"
+                    label="Service"
                     value={fk.values.service_type}
                     onChange={(e) => fk.setFieldValue("service_type", e.target.value)}
-                    sx={{ minWidth: 160 }}
+                    sx={{ minWidth: 140 }}
                 >
                     <MenuItem value="">All</MenuItem>
                     {services?.data?.map((s) => (
@@ -310,11 +313,12 @@ const AllOwnerProperty = () => {
                 </TextField>
 
                 <TextField
+                    size="small"
                     select
-                    label="Select Area"
+                    label="Area"
                     value={fk.values.area}
                     onChange={(e) => fk.setFieldValue("area", e.target.value)}
-                    sx={{ minWidth: 160 }}
+                    sx={{ minWidth: 140 }}
                 >
                     <MenuItem value="">All</MenuItem>
                     {areas.map((a) => (
@@ -325,20 +329,23 @@ const AllOwnerProperty = () => {
                 </TextField>
 
                 <TextField
+                    size="small"
                     select
-                    label="Select BHK"
+                    label="BHK"
                     value={fk.values.bhk}
                     onChange={(e) => fk.setFieldValue("bhk", e.target.value)}
-                    sx={{ minWidth: 120 }}
+                    sx={{ minWidth: 100 }}
                 >
                     <MenuItem value="">All</MenuItem>
-                    {bhk.data.map((b) => (
+                    {bhk?.data?.map((b) => (
                         <MenuItem key={b.bhk_id} value={b.bhk_name}>
                             {b.bhk_name}
                         </MenuItem>
                     ))}
                 </TextField>
             </div>
+
+
 
             <CustomTable
                 tablehead={tableHead}

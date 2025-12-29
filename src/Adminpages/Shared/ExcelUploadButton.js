@@ -39,8 +39,6 @@ const handleUpload = async (file) => {
   }
 };
 
-
-
   return (
     <div>
       {/* Hidden file input */}

@@ -10,7 +10,7 @@ export const API_URLS = {
 
   admin_login: `${domain}/api/v1/auth-admin-login`,
   emp_registration: `${domain}/api/v1/auth-emp-registration`,
-  
+
 
   dashboard_count: `${domain}/api/v1/dashboard-count`,
   employee_list: `${domain}/api/v1/employee-list`,
@@ -28,7 +28,7 @@ export const API_URLS = {
   create_properties: `${domain}/api/v1/create-properties`,
   get_properties: `${domain}/api/v1/get-properties`,
   get_all_properties_owner: `${domain}/api/v1/get-all-properties-owner`,
-  
+
   update_properties: `${domain}/api/v1/update-properties`,
   delete_properties: `${domain}/api/v1/delete-properties`,
 
@@ -53,13 +53,14 @@ export const API_URLS = {
   update_area: `${domain}/api/v1/update-area`,
   toggle_area: `${domain}/api/v1/update-area-status`,
 
-  assign_lead:`${domain}/api/v1/assign-lead-to-employee`,
-  assign_property:`${domain}/api/v1/assign-property-to-lead`,
+  assign_lead: `${domain}/api/v1/assign-lead-to-employee`,
+  assign_property: `${domain}/api/v1/assign-property-to-lead`,
 
 
   master_bhk: `${domain}/api/v1/get-bhk-master`,
-  employee_excel:`${domain}/api/v1/employee-excel`,
+  employee_excel: `${domain}/api/v1/employee-excel`,
+  upload_leads_excel: `${domain}/api/v1/upload-leads-excel`
 
- 
-  
+
+
 };

@@ -23,7 +23,7 @@ const CreateLead = () => {
             crm_property_type: lead?.crm_property_type || "",
             crm_locality: lead?.crm_locality || "",
             crm_city: lead?.crm_city || "Lucknow",
-            crm_lead_date: lead.crm_lead_date ? lead.crm_lead_date.split("T")[0] : "",
+            crm_secondary_status: lead.crm_secondary_status  || "",
             crm_bhk: lead?.crm_bhk || "",
             crm_price: lead?.crm_price || "",
             crm_building: lead?.crm_building || "",
@@ -167,14 +167,12 @@ const CreateLead = () => {
                     />
                     <TextField
                         fullWidth
-                        type="date"
-                        label="Lead Date"
-                        name="crm_lead_date"
-                        InputLabelProps={{ shrink: true }}
-                        value={fk.values.crm_lead_date}
+                        label="Status"
+                        name="crm_secondary_status"
+                        value={fk.values.crm_secondary_status}
                         onChange={fk.handleChange}
-                        error={fk.touched.crm_lead_date && Boolean(fk.errors.crm_lead_date)}
-                        helperText={fk.touched.crm_lead_date && fk.errors.crm_lead_date}
+                        error={fk.touched.crm_secondary_status && Boolean(fk.errors.crm_secondary_status)}
+                        helperText={fk.touched.crm_secondary_status && fk.errors.crm_secondary_status}
                     />
                     <TextField
                         fullWidth
