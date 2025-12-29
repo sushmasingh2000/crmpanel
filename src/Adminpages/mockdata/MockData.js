@@ -49,17 +49,6 @@ export const all_Data = [
         ),
         subcomponent: [],
       },
-      //  {
-      //   id: 1.4,
-      //   navLink: "/list-followup-master",
-      //   navItem: " FollowUp",
-      //   navIcon: (
-      //     <span>
-      //       <AddToPhotosIcon color="#15317E" fontSize="medium" />
-      //     </span>
-      //   ),
-      //   subcomponent: [],
-      // },
       {
         id: 1.4,
         navLink: "/list_area",
