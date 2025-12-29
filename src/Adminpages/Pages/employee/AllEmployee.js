@@ -1,4 +1,4 @@
-import { Edit, FilterAlt, UploadFile } from "@mui/icons-material";
+import { Edit, FilterAlt } from "@mui/icons-material";
 import { Button, TextField } from "@mui/material";
 import { useFormik } from "formik";
 import { useState } from "react";
@@ -9,13 +9,10 @@ import axiosInstance from "../../config/axios";
 import CustomDialog from "../../Shared/CustomDialogBox";
 import CustomTable from "../../Shared/CustomTable";
 import CustomToPagination from "../../Shared/Pagination";
-import ExcelUploadButton from "../../Shared/ExcelUploadButton";
 
 const EmployeeList = () => {
     const [open, setOpen] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
-    const [file, setFile] = useState(null);
-    const [uploading, setUploading] = useState(false);
 
     const handleOpen = () => setOpen(true);
     const handleClose = () => {
@@ -100,39 +97,6 @@ const EmployeeList = () => {
         setOpen(true);
     };
 
-    // ------------------ Excel Upload Function ------------------
-    const handleFileChange = (e) => setFile(e.target.files[0]);
-
-    const handleUpload = async () => {
-        if (!file) {
-            toast("Please choose a file first.");
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append("file", file);
-
-        try {
-            setUploading(true);
-            const response = await axiosInstance.post("/employee-excel", formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
-                },
-            });
-
-            toast(response.data?.message || "Upload successful");
-            setFile(null);
-            refetch();
-        } catch (err) {
-            console.error(err);
-            toast("Failed to upload file");
-        } finally {
-            setUploading(false);
-        }
-    };
-    // ------------------------------------------------------------
-
     const tableHead = ["S.No.", "Name", "Email", "Mobile", "Password", "Action"];
     const tableRow = allData?.map((f, idx) => [
         idx + 1,
@@ -149,7 +113,6 @@ const EmployeeList = () => {
                 <p className="font-bold text-xl">Employee Details</p>
 
                 <div className="flex gap-2">
-                    {/* <ExcelUploadButton onUploadSuccess={refetch} /> */}
                     <Button variant="contained" color="primary" onClick={handleOpen}>
                         + Add Employee
                     </Button>

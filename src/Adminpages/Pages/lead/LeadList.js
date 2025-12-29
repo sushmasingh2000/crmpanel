@@ -1,29 +1,20 @@
-import { Edit, Lock } from "@mui/icons-material";
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, Select, TextField } from "@mui/material";
+import { Button, FormControl, InputLabel, MenuItem, Select, TextField } from "@mui/material";
 import { useFormik } from "formik";
 import moment from "moment";
 import { useState } from "react";
-import toast from "react-hot-toast";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import { API_URLS } from "../../config/APIUrls";
 import axiosInstance from "../../config/axios";
 import CustomTable from "../../Shared/CustomTable";
 import CustomToPagination from "../../Shared/Pagination";
-import Swal from "sweetalert2";
 
 const LeadList = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const user_type = localStorage.getItem("type");
   const [currentPage, setCurrentPage] = useState(1);
-
-  // Dialog state
-  const [openAssignDialog, setOpenAssignDialog] = useState(false);
-  const [selectedLead, setSelectedLead] = useState(null);
-  const [selectedEmployee, setSelectedEmployee] = useState("");
-
-  // Bulk assign state
   const [selectedLeads, setSelectedLeads] = useState([]);
   const [bulkEmployee, setBulkEmployee] = useState("");
 
@@ -32,7 +23,7 @@ const LeadList = () => {
     onSubmit: () => setCurrentPage(1),
   });
 
-  // Fetch leads
+
   const { data: leadsData, isLoading } = useQuery(
     ["get_leads", fk.values.search, fk.values.start_date, fk.values.end_date, currentPage],
     () =>
@@ -48,34 +39,14 @@ const LeadList = () => {
 
   const allData = leadsData?.data?.response || [];
 
-  // Fetch employees
   const { data: employeesData } = useQuery(
     ["employees"],
     () =>
       axiosInstance.post(API_URLS.employee_list, { count: 10000 }),
     { keepPreviousData: true }
   );
-
   const employee_all = employeesData?.data?.data || [];
 
-  const assignLeadMutation = useMutation(
-    () =>
-      axiosInstance.post(API_URLS.assign_lead, {
-        lead_id: selectedLead?.id,
-        employee_id: selectedEmployee,
-        employee_name: employee_all.find(emp => emp.id === selectedEmployee)?.name
-      }),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries("get_leads");
-        setOpenAssignDialog(false);
-        setSelectedEmployee("");
-        toast("Lead assigned successfully");
-      },
-    }
-  );
-
-  // Excel upload
   const handleExcelUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -110,12 +81,9 @@ const LeadList = () => {
     }
   };
 
-  // Bulk assign function
   const handleBulkAssign = async () => {
     if (!bulkEmployee || selectedLeads.length === 0) return;
-
     const employeeName = employee_all.find(emp => emp.id === bulkEmployee)?.name;
-
     const result = await Swal.fire({
       title: "Are you sure?",
       text: `Assign ${selectedLeads.length} leads to ${employeeName}?`,
@@ -147,19 +115,16 @@ const LeadList = () => {
     }
   };
 
-  // Checkbox toggle
   const toggleLeadSelection = (leadId) => {
     setSelectedLeads(prev => prev.includes(leadId) ? prev.filter(id => id !== leadId) : [...prev, leadId]);
   };
 
-  // Table headers
   const tableHead = [
     "Select", "Id", "Name", "Mobile", "Email", "Service", "Property",
     "Locality", "City", "BHK", "Price", "Building", "Address",
     "Primary Status", "Sec. Status", "Created At", "FollowUp", "Action"
   ];
 
-  // Table rows
   const tableRow = allData?.data?.map((lead, index) => [
     <input
       type="checkbox"
@@ -210,8 +175,7 @@ const LeadList = () => {
         <TextField type="search" placeholder="Search by name or mobile" name="search" value={fk.values.search} onChange={fk.handleChange} />
       </div>
 
-      {/* Bulk assign controls */}
-      {selectedLeads?.length>0 && (
+      {selectedLeads?.length > 0 && (
         <div className="flex items-center justify-end gap-3 mb-4">
           <FormControl size="small">
             <InputLabel id="bulk-employee-label">Select Employee</InputLabel>
@@ -235,39 +199,8 @@ const LeadList = () => {
           </Button>
         </div>
       )}
-
-
       <CustomTable tablehead={tableHead} tablerow={tableRow} isLoading={isLoading} />
       <CustomToPagination page={currentPage} setPage={setCurrentPage} data={allData} />
-
-      {/* Single lead assign dialog remains unchanged */}
-      <Dialog open={openAssignDialog} onClose={() => setOpenAssignDialog(false)} maxWidth="xs" fullWidth>
-        <DialogTitle sx={{ fontWeight: "bold", fontSize: "1.2rem" }} className="!text-center">Assign Lead</DialogTitle>
-        <DialogContent dividers sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          <FormControl fullWidth size="small">
-            <div className="">Lead Name</div>
-            <TextField value={selectedLead?.crm_lead_name} />
-          </FormControl>
-          <FormControl fullWidth size="small">
-            <InputLabel id="employee-select-label">Select Employee</InputLabel>
-            <Select
-              labelId="employee-select-label"
-              value={selectedEmployee}
-              onChange={(e) => setSelectedEmployee(e.target.value)}
-              label="Employee"
-            >
-              {employee_all?.filter(emp => emp.role === "employee").map(emp => (
-                <MenuItem key={emp.id} value={emp.id}>{emp.name}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </DialogContent>
-        <DialogActions sx={{ justifyContent: "flex-end", px: 3, py: 2 }}>
-          <Button onClick={() => setOpenAssignDialog(false)} color="inherit" size="small">Cancel</Button>
-          <Button variant="contained" size="small" onClick={() => assignLeadMutation.mutate()} disabled={!selectedEmployee}>Assign</Button>
-        </DialogActions>
-      </Dialog>
-
     </div>
   );
 };
