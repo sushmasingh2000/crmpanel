@@ -145,14 +145,7 @@ const PropertyList = () => {
         <p className="text-red-600">
           Owner Name : {allData?.data?.[0]?.crm_owner_name || "--"}
         </p>
-        <Button
-          variant="contained"
-          onClick={() =>
-            navigate("/create-property", { state: { owner_id: ownerid } })
-          }
-        >
-          + Add Property
-        </Button>
+     
       </div>
 
       <CustomTable

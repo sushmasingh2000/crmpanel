@@ -62,24 +62,45 @@ const LeadList = () => {
       confirmButtonText: "Yes, upload it!",
       cancelButtonText: "Cancel",
       allowOutsideClick: false,
-      allowEscapeKey: false
+      allowEscapeKey: false,
     });
 
-    if (result.isConfirmed) {
-      Swal.fire({ title: "Uploading...", didOpen: () => Swal.showLoading() });
-      try {
-        await axiosInstance.post(API_URLS.upload_leads_excel, formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
-        Swal.close();
-        Swal.fire("Uploaded!", "Leads uploaded successfully.", "success");
-        queryClient.invalidateQueries("get_leads");
-      } catch (error) {
-        Swal.close();
-        Swal.fire("Error!", "Excel upload failed.", "error");
+    if (!result.isConfirmed) return;
+
+    Swal.fire({
+      title: "Uploading...",
+      didOpen: () => Swal.showLoading(),
+      allowOutsideClick: false,
+    });
+
+    try {
+      const res = await axiosInstance.post(
+        API_URLS.upload_leads_excel,
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+
+      Swal.close();
+
+      if (!res.data.success) {
+        Swal.fire("Error!", res.data.message, "error");
+        return;
       }
+
+      Swal.fire("Uploaded!", res.data.message, "success");
+      queryClient.invalidateQueries("get_leads");
+
+    } catch (error) {
+      Swal.close();
+
+      const errorMsg =
+        error?.response?.data?.message ||
+        "Something went wrong while uploading Excel";
+
+      Swal.fire("Error!", errorMsg, "error");
     }
   };
+
 
   const handleBulkAssign = async () => {
     if (!bulkEmployee || selectedLeads.length === 0) return;
@@ -120,9 +141,9 @@ const LeadList = () => {
   };
 
   const tableHead = [
-    "Select", "Id", "Name", "Mobile", "Email", "Service", "Property",
+    "Select", "S.No.", "Name", "Mobile", "Email", "Service", "Property",
     "Locality", "City", "BHK", "Price", "Building", "Address",
-    "Primary Status", "Sec. Status", "Created At", "FollowUp", "Action"
+    "Primary Status", "Sec. Status", "Date / Time", "FollowUp", "Action"
   ];
 
   const tableRow = allData?.data?.map((lead, index) => [

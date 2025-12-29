@@ -179,7 +179,7 @@ const OwnerList = () => {
     const uniqueCities = [...new Set(areas.map(a => a.city_name))];
 
 
-    const tableHead = ["S.No.", "Name", "Mobile", "Email", "Date", "Property", "Owner"];
+    const tableHead = ["S.No.", "Name", "Mobile", "Email", "Date / Time", "Property", "Owner"];
 
     const tableRow = owners?.data?.map((o, index) => [
         index + 1,
@@ -188,7 +188,7 @@ const OwnerList = () => {
         })} className="text-blue-600 underline">{o.crm_owner_name}</span>,
         o.crm_mobile,
         o.crm_owner_email,
-        moment(o.crm_created_at)?.format("DD-MM-YYYY"),
+        moment(o.crm_created_at)?.format("DD-MM-YYYY HH:mm:ss"),
         <Button onClick={() => handleOpen(o.id)} className="!bg-green-500 !text-white"> + ADD </Button>,
         <div className="flex gap-2">
             <Button

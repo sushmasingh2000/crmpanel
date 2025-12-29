@@ -110,7 +110,7 @@ const AllOwnerProperty = () => {
         "Address",
         "Tenant",
         "Status",
-        "Created At",
+        "Date / Time",
     ];
 
     const tableRow = allData?.map((prop, index) => [
