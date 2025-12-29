@@ -1,110 +1,3 @@
-// import { TextField } from "@mui/material";
-// import { useFormik } from "formik";
-// import moment from "moment";
-// import { useState } from "react";
-// import { useQuery } from "react-query";
-// import { API_URLS } from "../../config/APIUrls";
-// import axiosInstance from "../../config/axios";
-// import CustomTable from "../../Shared/CustomTable";
-// import CustomToPagination from "../../Shared/Pagination";
-
-// const ALlOwnerProperty = () => {
-
-//     const [currentPage, setCurrentPage] = useState(1);
-
-//     const fk = useFormik({
-//         initialValues: { search: "", start_date: "", end_date: "", count: 10 },
-//         onSubmit: () => setCurrentPage(1),
-//     });
-
-//     // Fetch leads
-//     const { data, isLoading } = useQuery(
-//         ["get_all_properties_owner", fk.values.search, fk.values.start_date, fk.values.end_date, currentPage],
-//         () =>
-//             axiosInstance.post(API_URLS.get_all_properties_owner, {
-//                 search: fk.values.search,
-//                 start_date: fk.values.start_date,
-//                 end_date: fk.values.end_date,
-//                 page: currentPage,
-//                 count: 10,
-//             }),
-//         { keepPreviousData: true }
-//     );
-
-//     const allData = data?.data?.data || [];
-
-//     const tableHead = [
-//         "S.No.",
-//         "Property ID",
-//         "Owner Name",
-//         "Mobile",
-//         "BHK",
-//         "Property ",
-//         "Service ",
-//         "Price",
-//         "City",
-//         "Area",
-//         "Pincode",
-//         "Address",
-//         "Tenant ",
-//         "Status",
-//         "Created At",
-//     ];
-
-//     const tableRow = allData?.map((prop, index) => [
-//         index + 1,
-//         prop.crm_property_unique_id || "--",
-//         prop.crm_owner_name || "--",
-//         prop.crm_mobile || "--",
-//         prop.crm_bhk || "--",
-//         prop.crm_property_type || "--",
-//         prop.crm_service_type || "--",
-//         prop.crm_expected_rent || "--",
-//         prop.crm_city || "--",
-//         prop.crm_area || "--",
-//         prop.crm_pincode || "--",
-//         prop.crm_address || "--",
-//         prop.crm_tenant_type || "--",
-//         prop.crm_availability || "--",
-//         prop.crm_created_at ? moment.utc(prop.crm_created_at).format("DD-MM-YYYY HH:mm:ss") : "--",
-//     ]);
-
-//     return (
-//         <div>
-//             <div className="flex justify-between mb-4">
-//                 <p className="font-bold text-xl">Property</p>
-//             </div>
-
-//             <div className="flex gap-3 mb-4">
-//                 <TextField
-//                     type="date"
-//                     value={fk.values.start_date}
-//                     onChange={(e) => fk.setFieldValue("start_date", e.target.value)}
-//                 />
-//                 <TextField
-//                     type="date"
-//                     value={fk.values.end_date}
-//                     onChange={(e) => fk.setFieldValue("end_date", e.target.value)}
-//                 />
-//                 <TextField
-//                     type="search"
-//                     placeholder="Search by name or mobile"
-//                     name="search"
-//                     value={fk.values.search}
-//                     onChange={fk.handleChange}
-//                 />
-//             </div>
-
-//             <CustomTable tablehead={tableHead} tablerow={tableRow} isLoading={isLoading} />
-//             <CustomToPagination page={currentPage} setPage={setCurrentPage} data={allData} />
-
-//         </div>
-//     );
-// };
-
-// export default ALlOwnerProperty;
-
-
 import { TextField, MenuItem } from "@mui/material";
 import { useFormik } from "formik";
 import moment from "moment";
@@ -118,9 +11,6 @@ import CustomToPagination from "../../Shared/Pagination";
 const AllOwnerProperty = () => {
     const [currentPage, setCurrentPage] = useState(1);
 
-    /* =======================
-        FORM STATE
-    ======================== */
     const fk = useFormik({
         initialValues: {
             search: "",
@@ -135,9 +25,6 @@ const AllOwnerProperty = () => {
         onSubmit: () => setCurrentPage(1),
     });
 
-    /* =======================
-        MASTER APIs
-    ======================== */
 
     const { data: propertyList } = useQuery(
         ["get_property_master"],
@@ -183,9 +70,6 @@ const AllOwnerProperty = () => {
     );
     const bhk = bhkData?.data?.response || [];
 
-    /* =======================
-        LISTING API
-    ======================== */
     const { data, isLoading } = useQuery(
         [
             "get_all_properties_owner",
@@ -211,9 +95,6 @@ const AllOwnerProperty = () => {
 
     const allData = data?.data?.data || [];
 
-    /* =======================
-        TABLE CONFIG
-    ======================== */
     const tableHead = [
         "S.No.",
         "Property ID",
@@ -344,8 +225,6 @@ const AllOwnerProperty = () => {
                     ))}
                 </TextField>
             </div>
-
-
 
             <CustomTable
                 tablehead={tableHead}

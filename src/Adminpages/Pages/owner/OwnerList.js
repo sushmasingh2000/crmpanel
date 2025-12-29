@@ -309,7 +309,7 @@ const OwnerList = () => {
                     {
                         name: "crm_expected_rent",
                         label: "Expected Rent",
-                        type: "number",
+                        type: "text",
                     },
                     {
                         name: "crm_city",

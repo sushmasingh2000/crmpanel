@@ -23,6 +23,10 @@ const LeadList = () => {
   const [selectedLead, setSelectedLead] = useState(null);
   const [selectedEmployee, setSelectedEmployee] = useState("");
 
+  // Bulk assign state
+  const [selectedLeads, setSelectedLeads] = useState([]);
+  const [bulkEmployee, setBulkEmployee] = useState("");
+
   const fk = useFormik({
     initialValues: { search: "", start_date: "", end_date: "", count: 10 },
     onSubmit: () => setCurrentPage(1),
@@ -44,18 +48,15 @@ const LeadList = () => {
 
   const allData = leadsData?.data?.response || [];
 
-
+  // Fetch employees
   const { data: employeesData } = useQuery(
     ["employees"],
     () =>
-      axiosInstance.post(API_URLS.employee_list, {
-        count: 10000,
-      }),
+      axiosInstance.post(API_URLS.employee_list, { count: 10000 }),
     { keepPreviousData: true }
   );
 
   const employee_all = employeesData?.data?.data || [];
-
 
   const assignLeadMutation = useMutation(
     () =>
@@ -74,7 +75,7 @@ const LeadList = () => {
     }
   );
 
-
+  // Excel upload
   const handleExcelUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -82,7 +83,6 @@ const LeadList = () => {
     const formData = new FormData();
     formData.append("file", file);
 
-    // Confirmation popup (without initial loading)
     const result = await Swal.fire({
       title: "Are you sure?",
       text: "Do you want to upload this Excel file?",
@@ -95,14 +95,7 @@ const LeadList = () => {
     });
 
     if (result.isConfirmed) {
-      // Show loading **after user confirms**
-      Swal.fire({
-        title: "Uploading...",
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-        didOpen: () => Swal.showLoading(),
-      });
-
+      Swal.fire({ title: "Uploading...", didOpen: () => Swal.showLoading() });
       try {
         await axiosInstance.post(API_URLS.upload_leads_excel, formData, {
           headers: { "Content-Type": "multipart/form-data" },
@@ -117,110 +110,86 @@ const LeadList = () => {
     }
   };
 
+  // Bulk assign function
+  const handleBulkAssign = async () => {
+    if (!bulkEmployee || selectedLeads.length === 0) return;
 
+    const employeeName = employee_all.find(emp => emp.id === bulkEmployee)?.name;
 
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: `Assign ${selectedLeads.length} leads to ${employeeName}?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, assign",
+      cancelButtonText: "Cancel",
+      allowOutsideClick: false,
+      allowEscapeKey: false
+    });
+
+    if (result.isConfirmed) {
+      Swal.fire({ title: "Assigning...", didOpen: () => Swal.showLoading() });
+      try {
+        await axiosInstance.post(API_URLS.assign_lead, {
+          lead_ids: selectedLeads,
+          employee_id: bulkEmployee,
+          employee_name: employeeName
+        });
+        Swal.close();
+        Swal.fire("Assigned!", "Leads assigned successfully.", "success");
+        setSelectedLeads([]);
+        setBulkEmployee("");
+        queryClient.invalidateQueries("get_leads");
+      } catch (error) {
+        Swal.close();
+        Swal.fire("Error!", "Failed to assign leads.", "error");
+      }
+    }
+  };
+
+  // Checkbox toggle
+  const toggleLeadSelection = (leadId) => {
+    setSelectedLeads(prev => prev.includes(leadId) ? prev.filter(id => id !== leadId) : [...prev, leadId]);
+  };
+
+  // Table headers
   const tableHead = [
-    "Id",
-    "Name",
-    "Mobile",
-    "Email",
-    "Service ",
-    "Property ",
-    // ...(user_type === "admin" ? ["Seller Name"] : []),
-    "Locality",
-    "City",
-    "BHK",
-    "Price",
-    "Building",
-    "Address",
-    // "Project ID",
-    "Primary Status",
-    "Sec. Status",
-    "Created At",
-    "FollowUp",
-    "Action",
-
+    "Select", "Id", "Name", "Mobile", "Email", "Service", "Property",
+    "Locality", "City", "BHK", "Price", "Building", "Address",
+    "Primary Status", "Sec. Status", "Created At", "FollowUp", "Action"
   ];
 
-  // Table row mapping
-  const tableRow = allData?.data?.map((lead, index) => {
-    const row = [
-      index + 1 + (currentPage - 1) * fk.values.count,
-      lead.crm_lead_name || "--",
-      lead.crm_mobile || "--",
-      lead.crm_email || "--",
-      lead.crm_service_type || "--",
-      lead.crm_property_type || "--",
-    ];
-    // if (user_type === "admin") {
-    //   row.push(
-    //     <span className="flex justify-center">
-    //       {lead.assigned_employee_name ? (
-    //         <span>  {lead?.assigned_employee_name} </span>
-    //       ) : (
-    //         <Button
-    //           size="small"
-    //           variant="outlined"
-    //           onClick={() => {
-    //             setSelectedLead(lead);
-    //             setOpenAssignDialog(true);
-    //           }}
-    //         >
-    //           Assign
-    //         </Button>
-    //       )}
-    //     </span>
-    //   );
-    // }
-
-    row.push(
-      lead.crm_locality || "--",
-      lead.crm_city || "--",
-      lead.crm_bhk || "--",
-      lead.crm_price || "--",
-      lead.crm_building || "--",
-      lead.crm_address || "--",
-      // <span>
-      //   {lead?.property_id ? (
-      //     <span>{lead?.property_id}</span>
-      //   ) : (
-      //     <Button
-      //       size="small"
-      //       variant="outlined"
-      //       onClick={() => {
-      //         navigate("/list-owner", { state: { lead_id: lead.id, lead_name: lead.crm_lead_name } });
-      //       }}
-      //     >
-      //       Select Property
-      //     </Button>
-      //   )}</span>,
-      lead.current_status || "--",
-    );
-    // Follow-up column
-    row.push(
-      lead.crm_secondary_status || "--",
-      lead.crm_created_at ? moment.utc(lead.crm_created_at).format("DD-MM-YYYY HH:mm:ss") : "--"
-    );
-
-    // Edit lead
-    row.push(
-      <Button
-        className="!bg-green-600 !text-white"
-        onClick={() =>
-          navigate("/follow-up", { state: { lead_id: lead.id } })
-        }
-      > View </Button>,
-      <Button
-        className="!bg-blue-600 !text-white"
-        onClick={() =>
-          navigate("/add-lead", { state: { lead } })
-        }
-      > Edit </Button>
-    );
-
-    return row;
-  });
-
+  // Table rows
+  const tableRow = allData?.data?.map((lead, index) => [
+    <input
+      type="checkbox"
+      checked={selectedLeads.includes(lead.id)}
+      onChange={() => toggleLeadSelection(lead.id)}
+    />,
+    index + 1 + (currentPage - 1) * fk.values.count,
+    lead.crm_lead_name || "--",
+    lead.crm_mobile || "--",
+    lead.crm_email || "--",
+    lead.crm_service_type || "--",
+    lead.crm_property_type || "--",
+    lead.crm_locality || "--",
+    lead.crm_city || "--",
+    lead.crm_bhk || "--",
+    lead.crm_price || "--",
+    lead.crm_building || "--",
+    lead.crm_address || "--",
+    lead.current_status || "--",
+    lead.crm_secondary_status || "--",
+    lead.crm_created_at ? moment.utc(lead.crm_created_at).format("DD-MM-YYYY HH:mm:ss") : "--",
+    <Button
+      className="!bg-green-600 !text-white"
+      onClick={() => navigate("/follow-up", { state: { lead_id: lead.id } })}
+    >View</Button>,
+    <Button
+      className="!bg-blue-600 !text-white"
+      onClick={() => navigate("/add-lead", { state: { lead } })}
+    >Edit</Button>
+  ]);
 
   return (
     <div>
@@ -229,61 +198,56 @@ const LeadList = () => {
         <div className="flex justify-end gap-5">
           <Button variant="outlined" component="label">
             Upload Excel
-            <input
-              type="file"
-              hidden
-              accept=".xlsx,.xls"
-              onChange={(e) => handleExcelUpload(e)}
-            />
+            <input type="file" hidden accept=".xlsx,.xls" onChange={handleExcelUpload} />
           </Button>
-          <Button variant="contained" onClick={() => navigate("/add-lead")}>
-            + Add Lead
-          </Button>
+          <Button variant="contained" onClick={() => navigate("/add-lead")}>+ Add Lead</Button>
         </div>
       </div>
 
       <div className="flex gap-3 mb-4">
-        <TextField
-          type="date"
-          value={fk.values.start_date}
-          onChange={(e) => fk.setFieldValue("start_date", e.target.value)}
-        />
-        <TextField
-          type="date"
-          value={fk.values.end_date}
-          onChange={(e) => fk.setFieldValue("end_date", e.target.value)}
-        />
-        <TextField
-          type="search"
-          placeholder="Search by name or mobile"
-          name="search"
-          value={fk.values.search}
-          onChange={fk.handleChange}
-        />
+        <TextField type="date" value={fk.values.start_date} onChange={(e) => fk.setFieldValue("start_date", e.target.value)} />
+        <TextField type="date" value={fk.values.end_date} onChange={(e) => fk.setFieldValue("end_date", e.target.value)} />
+        <TextField type="search" placeholder="Search by name or mobile" name="search" value={fk.values.search} onChange={fk.handleChange} />
       </div>
 
+      {/* Bulk assign controls */}
+      {selectedLeads?.length>0 && (
+        <div className="flex items-center justify-end gap-3 mb-4">
+          <FormControl size="small">
+            <InputLabel id="bulk-employee-label">Select Employee</InputLabel>
+            <Select
+              labelId="bulk-employee-label"
+              value={bulkEmployee}
+              onChange={(e) => setBulkEmployee(e.target.value)}
+              style={{ width: 200 }}
+            >
+              {employee_all?.filter(emp => emp.role === "employee").map(emp => (
+                <MenuItem key={emp.id} value={emp.id}>{emp.name}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <Button
+            variant="contained"
+            disabled={!bulkEmployee || selectedLeads.length === 0}
+            onClick={handleBulkAssign}
+          >
+            Assign Selected Leads
+          </Button>
+        </div>
+      )}
+
+
       <CustomTable tablehead={tableHead} tablerow={tableRow} isLoading={isLoading} />
-
       <CustomToPagination page={currentPage} setPage={setCurrentPage} data={allData} />
-      <Dialog
-        open={openAssignDialog}
-        onClose={() => setOpenAssignDialog(false)}
-        maxWidth="xs"
-        fullWidth
-      >
-        <DialogTitle sx={{ fontWeight: "bold", fontSize: "1.2rem" }} className="!text-center">
-          Assign Lead
-        </DialogTitle>
 
+      {/* Single lead assign dialog remains unchanged */}
+      <Dialog open={openAssignDialog} onClose={() => setOpenAssignDialog(false)} maxWidth="xs" fullWidth>
+        <DialogTitle sx={{ fontWeight: "bold", fontSize: "1.2rem" }} className="!text-center">Assign Lead</DialogTitle>
         <DialogContent dividers sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           <FormControl fullWidth size="small">
             <div className="">Lead Name</div>
-
-            <TextField
-              value={selectedLead?.crm_lead_name}
-            />
+            <TextField value={selectedLead?.crm_lead_name} />
           </FormControl>
-
           <FormControl fullWidth size="small">
             <InputLabel id="employee-select-label">Select Employee</InputLabel>
             <Select
@@ -292,33 +256,15 @@ const LeadList = () => {
               onChange={(e) => setSelectedEmployee(e.target.value)}
               label="Employee"
             >
-              {employee_all
-                ?.filter((emp) => emp.role === "employee")
-                .map((emp) => (
-                  <MenuItem key={emp.id} value={emp.id}>
-                    {emp.name}
-                  </MenuItem>
-                ))}
+              {employee_all?.filter(emp => emp.role === "employee").map(emp => (
+                <MenuItem key={emp.id} value={emp.id}>{emp.name}</MenuItem>
+              ))}
             </Select>
           </FormControl>
         </DialogContent>
-
         <DialogActions sx={{ justifyContent: "flex-end", px: 3, py: 2 }}>
-          <Button
-            onClick={() => setOpenAssignDialog(false)}
-            color="inherit"
-            size="small"
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="contained"
-            size="small"
-            onClick={() => assignLeadMutation.mutate()}
-            disabled={!selectedEmployee}
-          >
-            Assign
-          </Button>
+          <Button onClick={() => setOpenAssignDialog(false)} color="inherit" size="small">Cancel</Button>
+          <Button variant="contained" size="small" onClick={() => assignLeadMutation.mutate()} disabled={!selectedEmployee}>Assign</Button>
         </DialogActions>
       </Dialog>
 
