@@ -1,4 +1,4 @@
-import { TextField, MenuItem } from "@mui/material";
+import { TextField, MenuItem, Button } from "@mui/material";
 import { useFormik } from "formik";
 import moment from "moment";
 import { useState } from "react";
@@ -7,9 +7,16 @@ import { API_URLS } from "../../config/APIUrls";
 import axiosInstance from "../../config/axios";
 import CustomTable from "../../Shared/CustomTable";
 import CustomToPagination from "../../Shared/Pagination";
+import CustomDialog from "../../Shared/CustomDialogBox";
+import toast from "react-hot-toast";
 
 const AllOwnerProperty = () => {
     const [currentPage, setCurrentPage] = useState(1);
+    const [open, setOpen] = useState(false);
+    const [selectedProperty, setSelectedProperty] = useState(null);
+    const handleClose = () => {
+        setOpen(false);
+    };
 
     const fk = useFormik({
         initialValues: {
@@ -70,7 +77,8 @@ const AllOwnerProperty = () => {
     );
     const bhk = bhkData?.data?.response || [];
 
-    const { data, isLoading } = useQuery(
+
+    const { data, isLoading, refetch } = useQuery(
         [
             "get_all_properties_owner",
             fk.values,
@@ -111,6 +119,7 @@ const AllOwnerProperty = () => {
         "Tenant",
         "Status",
         "Date / Time",
+        "Action",
     ];
 
     const tableRow = allData?.map((prop, index) => [
@@ -131,7 +140,49 @@ const AllOwnerProperty = () => {
         prop.crm_created_at
             ? moment.utc(prop.crm_created_at).format("DD-MM-YYYY HH:mm:ss")
             : "--",
+        <Button
+            variant="contained"
+            onClick={() => {
+                setSelectedProperty(prop);
+                setOpen(true);
+            }}
+        >
+            Edit
+        </Button>,
     ]);
+
+    const uniqueCities = [...new Set(areas.map(a => a.city_name))];
+
+    const fkProperty = useFormik({
+        initialValues: {
+            id: selectedProperty?.id || "",
+            crm_owner_id: selectedProperty?.crm_owner_id || "",
+            crm_bhk: selectedProperty?.crm_bhk || "",
+            crm_property_type: selectedProperty?.crm_property_type || "",
+            crm_service_type: selectedProperty?.crm_service_type || "",
+            crm_expected_rent: selectedProperty?.crm_expected_rent || "",
+            crm_city: selectedProperty?.crm_city || "",
+            crm_area: selectedProperty?.crm_area || "",
+            crm_pincode: selectedProperty?.crm_pincode || "",
+            crm_address: selectedProperty?.crm_address || "",
+            crm_tenant_type: selectedProperty?.crm_tenant_type || "",
+            crm_availability: selectedProperty?.crm_availability || "Available",
+        },
+        enableReinitialize: true,
+        onSubmit: async (values) => {
+            try {
+                const res = await axiosInstance.post(API_URLS.create_properties, values);
+                toast(res?.data?.message);
+                if (res.data.success) {
+                    handleClose();
+                    refetch();
+                }
+            } catch (err) {
+                toast.error("Failed to update property");
+            }
+        },
+    });
+
 
     return (
         <div>
@@ -236,6 +287,109 @@ const AllOwnerProperty = () => {
                 page={currentPage}
                 setPage={setCurrentPage}
                 data={allData}
+            />
+            <CustomDialog
+                open={open}
+                onClose={handleClose}
+                onSubmit={fkProperty.handleSubmit}
+                title={"Update Property"}
+                formik={fkProperty}
+                fields={[
+
+                    {
+                        name: "crm_property_type",
+                        label: "Select Property ",
+                        type: "select",
+                        options: properties?.data?.map(item => ({
+                            value: item.property_type_name,
+                            label: item.property_type_name,
+                        })) || []
+                    },
+                    {
+                        name: "crm_bhk",
+                        label: "BHK Type ",
+                        type: "select",
+                        options: bhk?.data?.map(item => ({
+                            value: item.bhk_name,
+                            label: item.bhk_name,
+                        })) || []
+                    },
+                    {
+                        name: "crm_service_type",
+                        label: "Select Service ",
+                        type: "select",
+                        options: services?.data?.map(item => ({
+                            value: item.service_type_name,
+                            label: item.service_type_name,
+                        })) || []
+                    },
+                    {
+                        name: "crm_tenant_type",
+                        label: "Tenant ",
+                        type: "select",
+                        options: [
+                            { value: "Family", label: "Family" },
+                            { value: "Bachelor", label: "Bachelor" },
+                            { value: "Both", label: "Both" },
+                        ],
+                    },
+                    {
+                        name: "crm_expected_rent",
+                        label: "Expected Rent",
+                        type: "text",
+                    },
+                    {
+                        name: "crm_city",
+                        label: "City",
+                        type: "select",
+                        options: uniqueCities.map(city => ({ value: city, label: city })),
+                        onChange: (e) => {
+                            fkProperty.setFieldValue("crm_city", e.target.value);
+                            // Reset area & pincode when city changes
+                            fkProperty.setFieldValue("crm_area", "");
+                            fkProperty.setFieldValue("crm_pincode", "");
+                        }
+                    },
+                    {
+                        name: "crm_area",
+                        label: "Area",
+                        type: "select",
+                        options: areas
+                            .filter(a => a.city_name === fkProperty.values.crm_city)
+                            .map(a => ({ value: a.area_name, label: a.area_name })),
+                        onChange: (e) => {
+                            const selectedArea = areas.find(a => a.area_name === e.target.value);
+                            fkProperty.setFieldValue("crm_area", selectedArea.area_name);
+                            fkProperty.setFieldValue("crm_pincode", selectedArea.pincode);
+                            fkProperty.setFieldValue("crm_city", selectedArea.city_name);
+                        }
+                    },
+                    {
+                        name: "crm_pincode",
+                        label: "PinCode",
+                        type: "text",
+                        disabled: true,
+                    },
+
+                    {
+                        name: "crm_address",
+                        label: "Address",
+                        type: "text",
+                    },
+
+                    {
+                        name: "crm_availability",
+                        label: "Status",
+                        type: "select",
+                        options: [
+                            { value: "Available", label: "Available" },
+                            { value: "Rented", label: "Rented" },
+                            { value: "Not Answering", label: "Not Answering" },
+                            { value: "Rejected", label: "Rejected" },
+                            { value: "Closed", label: "Closed" },
+                        ],
+                    },
+                ]}
             />
         </div>
     );

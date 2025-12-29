@@ -11,16 +11,20 @@ const CreateFollowup = () => {
     const [loading, setLoading] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
+    const followup = location.state?.followup;
 
     const lead = location.state?.lead_id;
 
     const fk = useFormik({
         enableReinitialize: true,
         initialValues: {
+            id: followup?.id || null,
             crm_lead_id: lead,
-            crm_status: "",
-            crm_remark: "",
-            crm_next_followup_date: "",
+            crm_status: followup?.crm_status || "",
+            crm_remark: followup?.crm_remark || "",
+            crm_next_followup_date: followup?.crm_next_followup_date
+                ? followup.crm_next_followup_date.split("T")[0]
+                : "",
         },
         onSubmit: async (values) => {
             setLoading(true);
@@ -66,13 +70,13 @@ const CreateFollowup = () => {
                         fullWidth
                         required
                     >
-                       
+
                         {status?.data?.map((item) => (
                             <MenuItem key={item.followup_status_id} value={item.followup_status_name}>
                                 {item.followup_status_name}
                             </MenuItem>
                         ))}
-                       
+
                     </TextField>
 
                     <TextField

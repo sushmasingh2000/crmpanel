@@ -216,7 +216,7 @@ const LeadList = () => {
             disabled={!bulkEmployee || selectedLeads.length === 0}
             onClick={handleBulkAssign}
           >
-            Assign Selected Leads
+            Assign Leads
           </Button>
         </div>
       )}

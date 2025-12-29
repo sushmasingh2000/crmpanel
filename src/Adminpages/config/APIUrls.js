@@ -62,5 +62,4 @@ export const API_URLS = {
   upload_leads_excel: `${domain}/api/v1/upload-leads-excel`
 
 
-
 };

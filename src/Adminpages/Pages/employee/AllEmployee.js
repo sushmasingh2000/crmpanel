@@ -9,6 +9,7 @@ import axiosInstance from "../../config/axios";
 import CustomDialog from "../../Shared/CustomDialogBox";
 import CustomTable from "../../Shared/CustomTable";
 import CustomToPagination from "../../Shared/Pagination";
+import moment from "moment";
 
 const EmployeeList = () => {
     const [open, setOpen] = useState(false);
@@ -97,15 +98,23 @@ const EmployeeList = () => {
         setOpen(true);
     };
 
-    const tableHead = ["S.No.", "Name", "Email", "Mobile", "Password", "Action"];
+    const tableHead = ["S.No.", "Name", "Email", "Mobile", "Password", "Date / Time", "Action"];
+
+
     const tableRow = allData?.map((f, idx) => [
         idx + 1,
         f.name,
         f.email || "--",
         f.mobile || "--",
         f.password || "--",
-        <Edit style={{ cursor: "pointer", color: "green" }} onClick={() => handleEdit(f)} />,
+        f.created_at ? moment(f.created_at).format("DD-MM-YYYY HH:mm:ss") : "--",
+        <Button variant="contained"
+            onClick={() => handleEdit(f)}
+        >
+            EDIT
+        </Button>
     ]);
+
 
     return (
         <div className="">

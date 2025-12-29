@@ -184,7 +184,7 @@ const CreateLead = () => {
 
                     <TextField
                         fullWidth
-                        type="number"
+                        type="text"
                         label="Price"
                         name="crm_price"
                         value={fk.values.crm_price}

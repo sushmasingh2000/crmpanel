@@ -48,17 +48,39 @@ const FollowupList = () => {
     const allData = data?.data?.response || [];
 
 
-    const tableHead = ["S.No.", "Status", "Remark", "Follow-up Date", "Next Follow-up Date"];
+   const tableHead = [
+  "S.No.",
+  "Status",
+  "Remark",
+  "Follow-up Date",
+  "Next Follow-up Date",
+  "Action"
+];
 
-    const tableRow = allData?.data?.map((f, idx) => [
-        idx + 1,
-        f.crm_status,
-        f.crm_remark || "--",
-        f.crm_created_at ? moment(f.crm_created_at).format("YYYY-MM-DD") : "--",
-        f.crm_next_followup_date
-            ? moment(f.crm_next_followup_date).format("YYYY-MM-DD")
-            : "--",
-    ]);
+const tableRow = allData?.data?.map((f, idx) => [
+  idx + 1,
+  f.crm_status_name || f.crm_status,
+  f.crm_remark || "--",
+  f.crm_created_at ? moment(f.crm_created_at).format("YYYY-MM-DD") : "--",
+  f.crm_next_followup_date
+    ? moment(f.crm_next_followup_date).format("YYYY-MM-DD")
+    : "--",
+  <Button
+    size="small"
+    variant="outlined"
+    onClick={() =>
+      navigate("/create-follow-up", {
+        state: {
+          lead_id: lead,
+          followup: f, 
+        },
+      })
+    }
+  >
+    Edit
+  </Button>
+]);
+
 
 
     return (
