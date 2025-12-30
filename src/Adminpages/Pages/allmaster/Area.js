@@ -197,7 +197,7 @@ const AreaMaster = () => {
     <IconButton onClick={() => handleEdit(row)}>
       <Edit />
     </IconButton>,
-    moment(row.created_at).format("DD-MM-YYYY"),
+    moment(row.created_at).format("DD-MM-YYYY HH:mm:ss"),
   ]);
 
   return (
