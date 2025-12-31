@@ -6,6 +6,7 @@ import { API_URLS } from "../../config/APIUrls";
 import axiosInstance from "../../config/axios";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useQuery } from "react-query";
+import moment from "moment";
 
 const CreateFollowup = () => {
     const [loading, setLoading] = useState(false);
@@ -23,22 +24,41 @@ const CreateFollowup = () => {
             crm_status: followup?.crm_status || "",
             crm_remark: followup?.crm_remark || "",
             crm_next_followup_date: followup?.crm_next_followup_date
-                ? followup.crm_next_followup_date.split("T")[0]
+                ? moment(followup?.crm_next_followup_date)?.format("YYYY-MM-DD")
                 : "",
+            aadhaar: null,
+            pan: null,
+            rent_paper: null,
+            agreement: null,
         },
+
         onSubmit: async (values) => {
             setLoading(true);
             try {
-                const res = await axiosInstance.post(API_URLS.add_followup, values);
+                const formData = new FormData();
+
+                Object.keys(values).forEach((key) => {
+                    if (values[key]) {
+                        formData.append(key, values[key]);
+                    }
+                });
+
+                const res = await axiosInstance.post(
+                    API_URLS.add_followup,
+                    formData,
+                    { headers: { "Content-Type": "multipart/form-data" } }
+                );
+
                 if (res.data.success) {
                     toast.success(res.data.message);
-                    navigate(-1); // 🔥 back to followup list
+                    navigate(-1);
                 }
             } catch (err) {
                 toast.error("Something went wrong");
             }
             setLoading(false);
-        },
+        }
+
     });
 
     const { data: statusList } = useQuery(
@@ -55,10 +75,18 @@ const CreateFollowup = () => {
 
     const status = statusList?.data?.response || [];
 
+    const isClosed = fk.values.crm_status === "Closed";
+    const handleFileChange = (e) => {
+        fk.setFieldValue(e.target.name, e.target.files[0]);
+    };
+
+
+
     return (
         <div className=" flex items-center justify-center p-4">
             <div className="w-full  p-6 bg-white bg-opacity-45">
-                <p className="text-lg font-bold mb-4 text-center lg:mb-8">Add Follow-up</p>
+                <p className="text-lg font-bold mb-4 text-center lg:mb-8">
+                    {followup?.id ? "Update Follow-up" : "Add Follow-up"}</p>
 
                 <div className="grid lg:grid-cols-2 grid-cols-1 gap-4">
                     <TextField
@@ -80,16 +108,6 @@ const CreateFollowup = () => {
                     </TextField>
 
                     <TextField
-                        label="Remark"
-                        name="crm_remark"
-                        value={fk.values.crm_remark}
-                        onChange={fk.handleChange}
-                        fullWidth
-                        multiline
-                        rows={2}
-                    />
-
-                    <TextField
                         type="date"
                         label="Next Follow-up Date"
                         name="crm_next_followup_date"
@@ -98,7 +116,32 @@ const CreateFollowup = () => {
                         onChange={fk.handleChange}
                         fullWidth
                     />
+                    {isClosed && (
+                        <>
+                            <TextField
+                                fullWidth
+                                type="file"
+                                name="aadhaar"
+                                onChange={handleFileChange}
+                            />
+
+                            <TextField fullWidth type="file" name="pan" onChange={handleFileChange} />
+                            <TextField fullWidth type="file" name="rent_paper" onChange={handleFileChange} />
+                            <TextField fullWidth type="file" name="agreement" onChange={handleFileChange} />
+
+                        </>
+                    )}
+                    <TextField
+                        label="Remark"
+                        name="crm_remark"
+                        value={fk.values.crm_remark}
+                        onChange={fk.handleChange}
+                        fullWidth
+                        multiline
+                        rows={2}
+                    />
                 </div>
+
 
                 <div className="flex justify-end gap-3 mt-6">
                     <Button

@@ -141,21 +141,36 @@ const LeadList = () => {
   };
 
   const tableHead = [
-    "Select", "S.No.", "Name", "Mobile", "Email", "Service", "Property",
-    "Locality", "City", "BHK", "Price", "Building", "Address",
-    "Primary Status", "Sec. Status", "Date / Time", "FollowUp", "Action"
+     "S.No.", "Assigned To", "FollowUp", "Action", "Name", "Mobile", "Email",
+    "Primary Status", "Secondary Status", "Service", "Property",
+    "Locality", "City", "BHK", "Price", "Building", "Address", "Date / Time"
   ];
 
   const tableRow = allData?.data?.map((lead, index) => [
-    <input
-      type="checkbox"
-      checked={selectedLeads.includes(lead.id)}
-      onChange={() => toggleLeadSelection(lead.id)}
-    />,
+    
     index + 1 + (currentPage - 1) * fk.values.count,
+    <span>
+      {lead?.assigned_employee_name ? lead?.assigned_employee_name :
+        <input
+          type="checkbox"
+          checked={selectedLeads.includes(lead.id)}
+          onChange={() => toggleLeadSelection(lead.id)}
+          className="h-5 w-5"
+        />}
+    </span>,
+    <Button
+      className="!bg-green-600 !text-white"
+      onClick={() => navigate("/follow-up", { state: { lead_id: lead.id } })}
+    >View</Button>,
+    <Button
+      className="!bg-blue-600 !text-white"
+      onClick={() => navigate("/add-lead", { state: { lead } })}
+    >Edit</Button>,
     lead.crm_lead_name || "--",
     lead.crm_mobile || "--",
     lead.crm_email || "--",
+    lead.crm_secondary_status || "--",
+    lead.current_status || "--",
     lead.crm_service_type || "--",
     lead.crm_property_type || "--",
     lead.crm_locality || "--",
@@ -164,17 +179,8 @@ const LeadList = () => {
     lead.crm_price || "--",
     lead.crm_building || "--",
     lead.crm_address || "--",
-    lead.current_status || "--",
-    lead.crm_secondary_status || "--",
     lead.crm_created_at ? moment.utc(lead.crm_created_at).format("DD-MM-YYYY HH:mm:ss") : "--",
-    <Button
-      className="!bg-green-600 !text-white"
-      onClick={() => navigate("/follow-up", { state: { lead_id: lead.id } })}
-    >View</Button>,
-    <Button
-      className="!bg-blue-600 !text-white"
-      onClick={() => navigate("/add-lead", { state: { lead } })}
-    >Edit</Button>
+
   ]);
 
   return (
