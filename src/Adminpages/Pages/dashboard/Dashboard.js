@@ -1,12 +1,20 @@
-import React from "react";
+import React, { useState } from "react";
 import { useQuery } from "react-query";
 import axiosInstance from "../../config/axios";
 import { API_URLS } from "../../config/APIUrls";
-import { PersonPin } from "@mui/icons-material";
+import { Close, PersonPin } from "@mui/icons-material";
 import CustomTable from "../../Shared/CustomTable";
 import moment from "moment";
+import { useFormik } from "formik";
+import { Button, Dialog, DialogContent, DialogTitle, IconButton, TextField } from "@mui/material";
+import FollowupList from "../followup/FollowupList";
+
 
 const Dashboard = () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [openFollowup, setOpenFollowup] = useState(false);
+  const [selectedLeadId, setSelectedLeadId] = useState(null);
+
   const { data, isLoading, isError } = useQuery(
     ["dashboard_count"],
     () => axiosInstance.get(API_URLS.dashboard_count),
@@ -14,10 +22,24 @@ const Dashboard = () => {
   );
 
   const dashboard = data?.data?.data || {};
-
+  const fk = useFormik({
+    initialValues: {
+      search: "",
+      start_date: "",
+      end_date: "",
+      count: 10,
+    },
+    onSubmit: () => setCurrentPage(1),
+  });
   const { data: leads } = useQuery(
-    ["dashboard_followups"],
-    () => axiosInstance.post(API_URLS.dashbaord_main),
+    ["dashboard_followups", fk.values.search, fk.values.start_date, fk.values.end_date, currentPage],
+    () => axiosInstance.post(API_URLS.dashbaord_main, {
+      search: fk.values.search,
+      start_date: fk.values.start_date,
+      end_date: fk.values.end_date,
+      page: currentPage,
+      count: 10,
+    }),
     { keepPreviousData: true }
   );
 
@@ -29,6 +51,7 @@ const Dashboard = () => {
     "Mobile",
     "Status",
     "Next Follow-up Date",
+    "FollowUp"
   ];
 
   const tableRow = followups?.data?.map((f, idx) => [
@@ -37,6 +60,16 @@ const Dashboard = () => {
     f.crm_mobile,
     f.crm_status || "--",
     f.crm_next_followup_date ? moment(f.crm_next_followup_date).format("YYYY-MM-DD") : "--",
+    <Button
+      className="!bg-green-600 !text-white"
+      onClick={() => {
+        setSelectedLeadId(f.id);
+        setOpenFollowup(true);
+      }}
+    >
+      View
+    </Button>,
+
   ]);
 
   // Basic fixed cards
@@ -74,12 +107,57 @@ const Dashboard = () => {
         <h2 className="mt-10 font-bold mb-4">
           Upcoming Follow-ups
         </h2>
-
+        <div className="flex gap-3 mb-4">
+          <TextField
+            type="date"
+            value={fk.values.start_date}
+            onChange={(e) => fk.setFieldValue("start_date", e.target.value)}
+          />
+          <TextField
+            type="date"
+            value={fk.values.end_date}
+            onChange={(e) => fk.setFieldValue("end_date", e.target.value)}
+          />
+          <TextField
+            type="search"
+            placeholder="Search by name or mobile"
+            name="search"
+            value={fk.values.search}
+            onChange={fk.handleChange}
+          />
+        </div>
         <CustomTable
           tablehead={tableHead}
           tablerow={tableRow}
           isLoading={isLoading}
         />
+           <Dialog
+                open={openFollowup}
+                onClose={() => setOpenFollowup(false)}
+                fullWidth
+                maxWidth="md"
+              >
+                <DialogTitle className="flex justify-between items-center">
+                  Follow-up 
+                  <IconButton onClick={() => setOpenFollowup(false)}>
+                    <Close />
+                  </IconButton>
+                </DialogTitle>
+        
+                <DialogContent
+                  dividers
+                  sx={{
+                    height: "70vh",
+                    display: "flex",
+                    flexDirection: "column",
+                    padding: 0,
+                  }}
+                >
+                  {selectedLeadId && (
+                    <FollowupList leadId={selectedLeadId} />
+                  )}
+                </DialogContent>
+              </Dialog>
       </>
     </div>
   );

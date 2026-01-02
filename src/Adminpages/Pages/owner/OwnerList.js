@@ -332,6 +332,9 @@ const OwnerList = () => {
                             .map(a => ({ value: a.area_name, label: a.area_name })),
                         onChange: (e) => {
                             const selectedArea = areas.find(a => a.area_name === e.target.value);
+
+                            if (!selectedArea) return;
+
                             fkProperty.setFieldValue("crm_area", selectedArea.area_name);
                             fkProperty.setFieldValue("crm_pincode", selectedArea.pincode);
                             fkProperty.setFieldValue("crm_city", selectedArea.city_name);
