@@ -269,7 +269,6 @@ const LeadList = () => {
   const [selectedLeads, setSelectedLeads] = useState([]);
   const [bulkEmployee, setBulkEmployee] = useState("");
 
-  // 🔴 Followup Dialog State
   const [openFollowup, setOpenFollowup] = useState(false);
   const [selectedLeadId, setSelectedLeadId] = useState(null);
 
@@ -279,13 +278,13 @@ const LeadList = () => {
       start_date: "",
       end_date: "",
       count: 10,
+      status: ""
     },
     onSubmit: () => setCurrentPage(1),
   });
 
-  // 🔹 Lead List API
   const { data: leadsData, isLoading } = useQuery(
-    ["get_leads", fk.values.search, fk.values.start_date, fk.values.end_date, currentPage],
+    ["get_leads", fk.values.search, fk.values.start_date, fk.values.end_date, currentPage, fk.values.status],
     () =>
       axiosInstance.post(API_URLS.lead_list, {
         search: fk.values.search,
@@ -293,13 +292,13 @@ const LeadList = () => {
         end_date: fk.values.end_date,
         page: currentPage,
         count: 10,
+        status: fk.values.status
       }),
     { keepPreviousData: true }
   );
 
   const allData = leadsData?.data?.response || [];
 
-  // 🔹 Employees List
   const { data: employeesData } = useQuery(
     ["employees"],
     () => axiosInstance.post(API_URLS.employee_list, { count: 10000 }),
@@ -362,6 +361,17 @@ const LeadList = () => {
     }
   };
 
+  const { data: statusList } = useQuery(
+    ["get_followup_master"],
+    () =>
+      axiosInstance.post(API_URLS.get_followup_master, {
+        count: 100000,
+        status: 1,
+      }),
+    { refetchOnWindowFocus: false }
+  );
+
+  const status = statusList?.data?.response || [];
 
   const handleBulkAssign = async () => {
     if (!bulkEmployee || selectedLeads.length === 0) return;
@@ -397,8 +407,6 @@ const LeadList = () => {
     }
   };
 
-
-  // 🔹 Toggle checkbox
   const toggleLeadSelection = (leadId) => {
     setSelectedLeads((prev) =>
       prev.includes(leadId)
@@ -407,7 +415,7 @@ const LeadList = () => {
     );
   };
 
-  // 🔹 Table Head
+
   const tableHead = [
     "S.No.",
     "Assigned To",
@@ -456,12 +464,6 @@ const LeadList = () => {
       View
     </Button>,
 
-
-    // <Button
-    //   className="!bg-green-600 !text-white"
-    //   onClick={() => navigate("/follow-up", { state: { lead_id: lead.id } })}
-    // >View</Button>,
-
     <Button
       className="!bg-blue-600 !text-white"
       onClick={() => navigate("/add-lead", { state: { lead } })}
@@ -493,6 +495,13 @@ const LeadList = () => {
       <div className="flex justify-between mb-4">
         <p className="font-bold text-xl">Leads</p>
         <div className="flex justify-end gap-5">
+          <Button
+            variant="contained"
+            onClick={() => window.open("/lead_sample_excel.xlsx", "_blank")}
+          >
+            View Sample Excel
+          </Button>
+
           <Button variant="outlined" component="label">
             Upload Excel
             <input type="file" hidden accept=".xlsx,.xls" onChange={handleExcelUpload} />
@@ -520,6 +529,23 @@ const LeadList = () => {
           value={fk.values.search}
           onChange={fk.handleChange}
         />
+        <TextField
+          select
+          name="status"
+          label="Followup Status"
+          value={fk.values.status}
+          onChange={fk.handleChange}
+          className="lg:w-[300px]"
+        >
+          {status?.data?.map((item) => (
+            <MenuItem
+              key={item.followup_status_id}
+              value={item.followup_status_name}
+            >
+              {item.followup_status_name}
+            </MenuItem>
+          ))}
+        </TextField>
       </div>
       {selectedLeads?.length > 0 && (
         <div className="flex items-center justify-end gap-3 mb-4">
@@ -565,7 +591,7 @@ const LeadList = () => {
         maxWidth="md"
       >
         <DialogTitle className="flex justify-between items-center">
-          Follow-up 
+          Follow-up
           <IconButton onClick={() => setOpenFollowup(false)}>
             <CloseIcon />
           </IconButton>

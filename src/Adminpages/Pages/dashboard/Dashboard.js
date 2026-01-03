@@ -6,7 +6,7 @@ import { Close, PersonPin } from "@mui/icons-material";
 import CustomTable from "../../Shared/CustomTable";
 import moment from "moment";
 import { useFormik } from "formik";
-import { Button, Dialog, DialogContent, DialogTitle, IconButton, TextField } from "@mui/material";
+import { Button, Dialog, DialogContent, DialogTitle, IconButton, MenuItem, TextField } from "@mui/material";
 import FollowupList from "../followup/FollowupList";
 
 
@@ -22,6 +22,24 @@ const Dashboard = () => {
   );
 
   const dashboard = data?.data?.data || {};
+
+  const isLeadVisibleOnDashboard = (lead) => {
+    const today = moment().startOf("day");
+
+    const blockedStatuses = ["Closed", "Rejected", "Deal Success"];
+    if (blockedStatuses.includes(lead.current_status)) {
+      return false;
+    }
+
+    const baseDate = lead.followup_created_at
+      ? moment(lead.followup_created_at)
+      : moment(lead.crm_created_at);
+
+    const expiryDate = baseDate.clone().add(5, "days").endOf("day");
+
+    return today.isSameOrBefore(expiryDate);
+  };
+
   const fk = useFormik({
     initialValues: {
       search: "",
@@ -32,34 +50,42 @@ const Dashboard = () => {
     onSubmit: () => setCurrentPage(1),
   });
   const { data: leads } = useQuery(
-    ["dashboard_followups", fk.values.search, fk.values.start_date, fk.values.end_date, currentPage],
-    () => axiosInstance.post(API_URLS.dashbaord_main, {
+    ["dashboar_leads", fk.values.search, fk.values.status, fk.values.start_date, fk.values.end_date, currentPage],
+    () => axiosInstance.post(API_URLS.lead_list, {
       search: fk.values.search,
       start_date: fk.values.start_date,
       end_date: fk.values.end_date,
+      status:fk.values.status,
       page: currentPage,
-      count: 10,
+      count: 10000000,
     }),
     { keepPreviousData: true }
   );
 
-  const followups = leads?.data?.response || [];
+  const followups = leads?.data?.response?.data?.filter(isLeadVisibleOnDashboard) || [];
+
 
   const tableHead = [
     "S.No.",
     "Lead Name",
     "Mobile",
     "Status",
-    "Next Follow-up Date",
+    "Lead Date",
+    " Followup Date",
     "FollowUp"
   ];
 
-  const tableRow = followups?.data?.map((f, idx) => [
+  const tableRow = followups.map((f, idx) => [
     idx + 1,
     f.crm_lead_name,
     f.crm_mobile,
-    f.crm_status || "--",
-    f.crm_next_followup_date ? moment(f.crm_next_followup_date).format("YYYY-MM-DD") : "--",
+    f.current_status || "--",
+    f.followup_created_at
+      ? moment(f.crm_created_at).format("YYYY-MM-DD")
+      : "--",
+    f.followup_created_at
+      ? moment(f.followup_created_at).format("YYYY-MM-DD")
+      : "--",
     <Button
       className="!bg-green-600 !text-white"
       onClick={() => {
@@ -69,9 +95,19 @@ const Dashboard = () => {
     >
       View
     </Button>,
-
   ]);
 
+  const { data: statusList } = useQuery(
+    ["get_followup_master"],
+    () =>
+      axiosInstance.post(API_URLS.get_followup_master, {
+        count: 100000,
+        status: 1,
+      }),
+    { refetchOnWindowFocus: false }
+  );
+
+  const status = statusList?.data?.response || [];
   // Basic fixed cards
   const baseStats = [
     { label: "Total Leads", icon: <PersonPin className="!h-[3rem] !w-[3rem] !text-[#2a2785]" />, value: dashboard.total_leads || 0 },
@@ -125,39 +161,56 @@ const Dashboard = () => {
             value={fk.values.search}
             onChange={fk.handleChange}
           />
+          <TextField
+            select
+            name="status"
+            label="Followup Status"
+            value={fk.values.status}
+            onChange={fk.handleChange}
+           className="lg:w-[300px]"
+          >
+            {status?.data?.map((item) => (
+              <MenuItem
+                key={item.followup_status_id}
+                value={item.followup_status_name}
+              >
+                {item.followup_status_name}
+              </MenuItem>
+            ))}
+          </TextField>
         </div>
         <CustomTable
           tablehead={tableHead}
           tablerow={tableRow}
           isLoading={isLoading}
         />
-           <Dialog
-                open={openFollowup}
-                onClose={() => setOpenFollowup(false)}
-                fullWidth
-                maxWidth="md"
-              >
-                <DialogTitle className="flex justify-between items-center">
-                  Follow-up 
-                  <IconButton onClick={() => setOpenFollowup(false)}>
-                    <Close />
-                  </IconButton>
-                </DialogTitle>
-        
-                <DialogContent
-                  dividers
-                  sx={{
-                    height: "70vh",
-                    display: "flex",
-                    flexDirection: "column",
-                    padding: 0,
-                  }}
-                >
-                  {selectedLeadId && (
-                    <FollowupList leadId={selectedLeadId} />
-                  )}
-                </DialogContent>
-              </Dialog>
+        <Dialog
+          open={openFollowup}
+          onClose={() => setOpenFollowup(false)}
+          fullWidth
+          maxWidth="md"
+        >
+          <DialogTitle className="flex justify-between items-center">
+            Follow-up
+            <IconButton onClick={() => setOpenFollowup(false)}>
+              <Close />
+            </IconButton>
+          </DialogTitle>
+
+          <DialogContent
+            dividers
+            sx={{
+              height: "70vh",
+              display: "flex",
+              flexDirection: "column",
+              padding: 0,
+            }}
+          >
+            {selectedLeadId && (
+              <FollowupList leadId={selectedLeadId} />
+            )}
+          </DialogContent>
+        </Dialog>
       </>
     </div>
   );
