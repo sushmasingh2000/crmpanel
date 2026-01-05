@@ -111,7 +111,7 @@ const Dashboard = () => {
   // Basic fixed cards
   const baseStats = [
     { label: "Total Leads", icon: <PersonPin className="!h-[3rem] !w-[3rem] !text-[#2a2785]" />, value: dashboard.total_leads || 0 },
-    { label: "Total Owners", icon: <PersonPin className="!h-[3rem] !w-[3rem] !text-[#2a2785]" />, value: dashboard.total_owners || 0 },
+    // { label: "Total Owners", icon: <PersonPin className="!h-[3rem] !w-[3rem] !text-[#2a2785]" />, value: dashboard.total_owners || 0 },
     { label: "Total Follow-ups", icon: <PersonPin className="!h-[3rem] !w-[3rem] !text-[#2a2785]" />, value: dashboard.leads_with_followup || 0 },
   ];
 
