@@ -2,13 +2,14 @@ import { TextField, MenuItem, Button } from "@mui/material";
 import { useFormik } from "formik";
 import moment from "moment";
 import { useState } from "react";
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 import { API_URLS } from "../../config/APIUrls";
 import axiosInstance from "../../config/axios";
 import CustomTable from "../../Shared/CustomTable";
 import CustomToPagination from "../../Shared/Pagination";
 import CustomDialog from "../../Shared/CustomDialogBox";
 import toast from "react-hot-toast";
+import Swal from "sweetalert2";
 
 const AllOwnerProperty = () => {
     const [currentPage, setCurrentPage] = useState(1);
@@ -182,11 +183,81 @@ const AllOwnerProperty = () => {
             }
         },
     });
+    const queryClient = useQueryClient();
 
+    const handleExcelUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const result = await Swal.fire({
+            title: "Are you sure?",
+            text: "Do you want to upload this Excel file?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, upload it!",
+            cancelButtonText: "Cancel",
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+        });
+
+        if (!result.isConfirmed) return;
+
+        Swal.fire({
+            title: "Uploading...",
+            didOpen: () => Swal.showLoading(),
+            allowOutsideClick: false,
+        });
+
+        try {
+            const res = await axiosInstance.post(
+                API_URLS.upload_property_excel,
+                formData,
+                { headers: { "Content-Type": "multipart/form-data" } }
+            );
+
+            Swal.close();
+
+            if (!res.data.success) {
+                Swal.fire("Error!", res.data.message, "error");
+                return;
+            }
+
+            Swal.fire("Uploaded!", res.data.message, "success");
+            queryClient.invalidateQueries("get_all_properties_owner");
+
+        } catch (error) {
+            Swal.close();
+
+            const errorMsg =
+                error?.response?.data?.message ||
+                "Something went wrong while uploading Excel";
+
+            Swal.fire("Error!", errorMsg, "error");
+        }
+    };
 
     return (
         <div>
-            <p className="font-bold text-xl mb-4">Property</p>
+
+            <div className="flex justify-between mb-4">
+                <p className="font-bold text-xl mb-4">Property</p>
+                <div className="flex justify-end gap-5">
+                    <Button
+                        variant="contained"
+                        onClick={() => window.open("/property-sample.xlsx", "_blank")}
+                    >
+                        View Sample Excel
+                    </Button>
+
+                    <Button variant="outlined" component="label">
+                        Upload Excel
+                        <input type="file" hidden accept=".xlsx,.xls" onChange={handleExcelUpload} />
+                    </Button>
+                </div>
+            </div>
             <div className="flex gap-2 mb-4 flex-nowrap overflow-x-auto !my-5">
                 <TextField
                     size="small"
@@ -386,7 +457,7 @@ const AllOwnerProperty = () => {
                             { value: "Rented", label: "Rented" },
                             { value: "Not Answering", label: "Not Answering" },
                             { value: "Rejected", label: "Rejected" },
-                            { value: "Closed", label: "Closed" },
+                            { value: "Deal Success", label: "Deal Success" },
                         ],
                     },
                 ]}

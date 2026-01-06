@@ -26,7 +26,7 @@ const Dashboard = () => {
   const isLeadVisibleOnDashboard = (lead) => {
     const today = moment().startOf("day");
 
-    const blockedStatuses = ["Closed", "Rejected", "Deal Success"];
+    const blockedStatuses = [ "Rejected", "Deal Success"];
     if (blockedStatuses.includes(lead.current_status)) {
       return false;
     }
@@ -155,13 +155,6 @@ const Dashboard = () => {
             onChange={(e) => fk.setFieldValue("end_date", e.target.value)}
           />
           <TextField
-            type="search"
-            placeholder="Search by name or mobile"
-            name="search"
-            value={fk.values.search}
-            onChange={fk.handleChange}
-          />
-          <TextField
             select
             name="status"
             label="Followup Status"
@@ -178,6 +171,13 @@ const Dashboard = () => {
               </MenuItem>
             ))}
           </TextField>
+            <TextField
+            type="search"
+            placeholder="Search by name or mobile"
+            name="search"
+            value={fk.values.search}
+            onChange={fk.handleChange}
+          />
         </div>
         <CustomTable
           tablehead={tableHead}

@@ -75,7 +75,7 @@ const CreateFollowup = () => {
 
     const status = statusList?.data?.response || [];
 
-    const isClosed = fk.values.crm_status === "Closed";
+    const isClosed = fk.values.crm_status === "Deal Success";
     const handleFileChange = (e) => {
         fk.setFieldValue(e.target.name, e.target.files[0]);
     };

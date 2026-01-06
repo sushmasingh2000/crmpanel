@@ -217,7 +217,7 @@ const FollowupChat = ({ messages }) => {
                                 <span className="text-black">Remark - </span> {f.crm_remark || "No Remark"}
                             </p>
 
-                            {f.crm_status === "Closed" && (
+                            {f.crm_status === "Deal Success" && (
                                 <div className="mt-2 border-t pt-2">
                                     <p className="text-xs font-semibold text-gray-600 mb-1">
                                         Attached Documents
@@ -293,7 +293,7 @@ const FollowupInput = ({ leadId, onSent }) => {
                 return toast("Select FollowUp Status")
             }
             if (
-                values.crm_status === "Closed" &&
+                values.crm_status === "Deal Success" &&
                 (!values.aadhaar || !values.pan || !values.agreement)
             ) {
                 toast("Please upload Aadhaar, Police Verification & Rent Agreement!", { id: 1 });
@@ -314,7 +314,7 @@ const FollowupInput = ({ leadId, onSent }) => {
         },
     });
 
-    const isClosed = fk.values.crm_status === "Closed";
+    const isClosed = fk.values.crm_status === "Deal Success";
 
     const { data: statusList } = useQuery(
         ["get_followup_master"],

@@ -58,7 +58,10 @@ export const API_URLS = {
 
 
   master_bhk: `${domain}/api/v1/get-bhk-master`,
+
   employee_excel: `${domain}/api/v1/employee-excel`,
   upload_leads_excel: `${domain}/api/v1/upload-leads-excel`,
+  upload_property_excel: `${domain}/api/v1/upload-property-excel`,
+  
 
 };

@@ -19,6 +19,7 @@ const OwnerList = () => {
     const [selectedOwner, setSelectedOwner] = useState(null);
     const [open, setOpen] = useState(false);
     const [ownerId, setOwnerId] = useState(null);
+    const type = localStorage.getItem("type")
 
     const handleOpen = (id) => {
         setOwnerId(id);
@@ -103,6 +104,7 @@ const OwnerList = () => {
     const fkOwner = useFormik({
         initialValues: {
             crm_owner_name: selectedOwner?.crm_owner_name || "",
+            crm_co_owner_name:selectedOwner?.crm_co_owner_name || "",
             crm_mobile: selectedOwner?.crm_mobile || "",
             crm_area: selectedOwner?.crm_area || "",
             crm_pincode: selectedOwner?.crm_pincode || "",
@@ -179,15 +181,16 @@ const OwnerList = () => {
     const uniqueCities = [...new Set(areas.map(a => a.city_name))];
 
 
-    const tableHead = ["S.No.", "Name", "Mobile", "Email", "Date / Time", "Property", "Owner"];
+    const tableHead = ["S.No.", "Owner Name", "Co-Owner Name" , "Mobile", "Email", "Date / Time", "Property", "Owner"];
 
     const tableRow = owners?.data?.map((o, index) => [
         index + 1,
         <span onClick={() => navigate('/list_properties', {
             state: { owner_id: o?.id }
-        })} className="text-blue-600 underline">{o.crm_owner_name}</span>,
-        o.crm_mobile,
-        o.crm_owner_email,
+        })} className="text-blue-600 underline">{o.crm_owner_name || "--"}</span>,
+        o?.crm_co_owner_name || "--",
+        o.crm_mobile || "--",
+        o.crm_owner_email || "--",
         moment(o.crm_created_at)?.format("DD-MM-YYYY HH:mm:ss"),
         <Button onClick={() => handleOpen(o.id)} className="!bg-green-500 !text-white"> + ADD </Button>,
         <div className="flex gap-2">
@@ -205,12 +208,14 @@ const OwnerList = () => {
         <div className="p-4">
             <div className="flex justify-between mb-3">
                 <p className="font-bold text-xl">Owner </p>
+                {type === "admin" && 
                 <Button
                     variant="contained"
                     onClick={() => handleOpenOwnerDialog(null)}
                 >
                     + Add Owner
                 </Button>
+                }
             </div>
             <div className="flex gap-3 mb-4">
                 <TextField
@@ -256,8 +261,10 @@ const OwnerList = () => {
                 formik={fkOwner}
                 fields={[
                     { name: "crm_owner_name", label: "Owner Name", type: "text" },
+                    { name: "crm_co_owner_name", label: "Co-Owner Name", type: "text" },
                     { name: "crm_mobile", label: "Mobile", type: "text" },
                     { name: "crm_owner_email", label: "Email", type: "text" },
+                    
                 ]}
             />
 
@@ -362,7 +369,7 @@ const OwnerList = () => {
                             { value: "Rented", label: "Rented" },
                             { value: "Not Answering", label: "Not Answering" },
                             { value: "Rejected", label: "Rejected" },
-                            { value: "Closed", label: "Closed" },
+                            { value: "Deal Success", label: "Deal Success" },
                         ],
                     },
                 ]}
