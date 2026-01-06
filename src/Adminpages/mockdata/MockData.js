@@ -114,8 +114,8 @@ export const all_Data = [
   if (user_type === "admin") return true;
 
   if (user_type === "employee") {
-    return i.navItem !== "Employee";
+    return  i.navItem !== "Master" && i.navItem !== "Employee";
   }
-  // i.navItem !== "Master" &&
+ 
   return false;
 });

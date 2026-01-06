@@ -61,6 +61,9 @@ const ServiceTypeMaster = () => {
 
   /* ================= CREATE ================= */
   const createService = async (values) => {
+      if(!values?.name){
+      return toast("Please Enter Service  Name")
+    }
     try {
       const res = await axiosInstance.post(API_URLS.create_service_type, {
         service_type_name: values.name,
@@ -140,8 +143,8 @@ const ServiceTypeMaster = () => {
 
   const tablerow = services?.data?.map((item, index) => [
     <span>{index + 1}</span>,
-    <span>{item.service_type_name}</span>,
-    <span>{item.service_type_desc}</span>,
+    <span>{item.service_type_name || "--"}</span>,
+    <span>{item.service_type_desc || "--"}</span>,
     <Switch
       checked={item.service_type_status === 1}
       onChange={() => toggleStatus(item)}

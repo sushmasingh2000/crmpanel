@@ -167,7 +167,7 @@ const CustomDialog = ({ open, onClose, onSubmit, title, formik, fields = [] }) =
           onClick={onSubmit}
           variant="contained"
           color="primary"
-          disabled={formik.isSubmitting}
+          // disabled={formik.isSubmitting}
         >
           {formik.isSubmitting ? "Submitting..." : "Submit"}
         </Button>

@@ -60,6 +60,9 @@ const PropertyMaster = () => {
 
   /* ================= CREATE ================= */
   const createProperty = async (values) => {
+    if(!values?.name){
+      return toast("Please Enter Property  Name")
+    }
     try {
       const res = await axiosInstance.post(API_URLS.create_property_master, {
         property_type_name: values.name,
@@ -140,8 +143,8 @@ const PropertyMaster = () => {
 
   const tablerow = properties?.data?.map((item, index) => [
     <span>{index + 1}</span>,
-    <span>{item.property_type_name}</span>,
-    <span>{item.property_type_desc}</span>,
+    <span>{item.property_type_name || "--"}</span>,
+    <span>{item.property_type_desc || "--"}</span>,
     <Switch
       checked={item.property_type_status === 1}
       onChange={() => toggleStatus(item)}
