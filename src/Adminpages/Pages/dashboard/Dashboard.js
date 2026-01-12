@@ -14,6 +14,7 @@ const Dashboard = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [openFollowup, setOpenFollowup] = useState(false);
   const [selectedLeadId, setSelectedLeadId] = useState(null);
+  const userRole = localStorage.getItem("type")
 
   const { data, isLoading, isError } = useQuery(
     ["dashboard_count"],
@@ -26,7 +27,7 @@ const Dashboard = () => {
   const isLeadVisibleOnDashboard = (lead) => {
     const today = moment().startOf("day");
 
-    const blockedStatuses = [ "Rejected", "Deal Success"];
+    const blockedStatuses = ["Rejected", "Deal Success"];
     if (blockedStatuses.includes(lead.current_status)) {
       return false;
     }
@@ -52,10 +53,10 @@ const Dashboard = () => {
   const { data: leads } = useQuery(
     ["dashboar_leads", fk.values.search, fk.values.status, fk.values.start_date, fk.values.end_date, currentPage],
     () => axiosInstance.post(API_URLS.lead_list, {
-      search: fk.values.search,
+      search: fk.values.search?.trim(),
       start_date: fk.values.start_date,
       end_date: fk.values.end_date,
-      status:fk.values.status,
+      status: fk.values.status,
       page: currentPage,
       count: 10000000,
     }),
@@ -67,24 +68,30 @@ const Dashboard = () => {
 
   const tableHead = [
     "S.No.",
+    "Lead Date / Time",
+    " Followup Date / Time",
+    "FollowUp",
+    "Status",
     "Lead Name",
     "Mobile",
-    "Status",
-    "Lead Date",
-    " Followup Date",
-    "FollowUp"
   ];
 
   const tableRow = followups.map((f, idx) => [
-    idx + 1,
-    f.crm_lead_name,
-    f.crm_mobile,
-    f.current_status || "--",
-    f.followup_created_at
-      ? moment(f.crm_created_at).format("YYYY-MM-DD")
+   <span className="flex gap-2">
+     {idx + 1},
+      {userRole !== "admin" &&
+        (!f.current_status) && (
+          <span className="bg-green-600 text-white text-[10px] px-2  rounded-full">
+            NEW
+          </span>
+        )}
+   </span>,
+
+    f.crm_created_at
+      ? moment(f.crm_created_at).format("YYYY-MM-DD HH:mm:ss")
       : "--",
     f.followup_created_at
-      ? moment(f.followup_created_at).format("YYYY-MM-DD")
+      ? moment(f.followup_created_at).format("YYYY-MM-DD HH:mm:ss")
       : "--",
     <Button
       className="!bg-green-600 !text-white"
@@ -95,6 +102,9 @@ const Dashboard = () => {
     >
       View
     </Button>,
+    f.current_status || "--",
+    f.crm_lead_name || "--",
+    f.crm_mobile || "--",
   ]);
 
   const { data: statusList } = useQuery(
@@ -160,7 +170,7 @@ const Dashboard = () => {
             label="Followup Status"
             value={fk.values.status}
             onChange={fk.handleChange}
-           className="lg:w-[300px]"
+            className="lg:w-[300px]"
           >
             {status?.data?.map((item) => (
               <MenuItem
@@ -171,12 +181,12 @@ const Dashboard = () => {
               </MenuItem>
             ))}
           </TextField>
-            <TextField
+          <TextField
             type="search"
             placeholder="Search by name or mobile"
             name="search"
             value={fk.values.search}
-            onChange={fk.handleChange}
+            onChange={(e) => fk.setFieldValue("search", e.target.value.trimStart())}
           />
         </div>
         <CustomTable

@@ -15,13 +15,16 @@ import { useFormik } from "formik";
 import moment from "moment";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "react-query";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { API_URLS } from "../../config/APIUrls";
 import axiosInstance from "../../config/axios";
 import CustomTable from "../../Shared/CustomTable";
 import CustomToPagination from "../../Shared/Pagination";
 import FollowupList from "../followup/FollowupList";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+
 
 const LeadList = () => {
   const navigate = useNavigate();
@@ -30,13 +33,20 @@ const LeadList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedLeads, setSelectedLeads] = useState([]);
   const [bulkEmployee, setBulkEmployee] = useState("");
+  const [assignAll, setAssignAll] = useState(false);
 
   const [openFollowup, setOpenFollowup] = useState(false);
   const [selectedLeadId, setSelectedLeadId] = useState(null);
+  const [dateSort, setDateSort] = useState("desc");
+  const userRole = localStorage.getItem("type")
+  const location = useLocation()
+  const searchMobileFromState = location.state?.searchMobile || "";
+
+
 
   const fk = useFormik({
     initialValues: {
-      search: "",
+      search: searchMobileFromState || "",
       start_date: "",
       end_date: "",
       count: 10,
@@ -46,15 +56,16 @@ const LeadList = () => {
   });
 
   const { data: leadsData, isLoading } = useQuery(
-    ["get_leads", fk.values.search, fk.values.start_date, fk.values.end_date, currentPage, fk.values.status],
+    ["get_leads", fk.values.search, fk.values.start_date, fk.values.end_date, currentPage, fk.values.status, dateSort],
     () =>
       axiosInstance.post(API_URLS.lead_list, {
-        search: fk.values.search,
+        search: fk.values.search?.trim(),
         start_date: fk.values.start_date,
         end_date: fk.values.end_date,
         page: currentPage,
-        count: 10,
-        status: fk.values.status
+        count: 50,
+        status: fk.values.status,
+        sort_order: dateSort
       }),
     { keepPreviousData: true }
   );
@@ -136,11 +147,23 @@ const LeadList = () => {
   const status = statusList?.data?.response || [];
 
   const handleBulkAssign = async () => {
-    if (!bulkEmployee || selectedLeads.length === 0) return;
-    const employeeName = employee_all.find(emp => emp.id === bulkEmployee)?.name;
+    if (!bulkEmployee) return;
+
+    if (!assignAll && selectedLeads.length === 0) {
+      Swal.fire("Please select leads", "", "warning");
+      return;
+    }
+
+    const employeeName =
+      employee_all.find(emp => emp.id === bulkEmployee)?.name;
+
+    const text = assignAll
+      ? "Assign ALL unassigned leads?"
+      : `Assign ${selectedLeads.length} leads to ${employeeName}?`;
+
     const result = await Swal.fire({
       title: "Are you sure?",
-      text: `Assign ${selectedLeads.length} leads to ${employeeName}?`,
+      text: text,
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Yes, assign",
@@ -149,25 +172,37 @@ const LeadList = () => {
       allowEscapeKey: false
     });
 
-    if (result.isConfirmed) {
-      Swal.fire({ title: "Assigning...", didOpen: () => Swal.showLoading() });
-      try {
-        await axiosInstance.post(API_URLS.assign_lead, {
-          lead_ids: selectedLeads,
-          employee_id: bulkEmployee,
-          employee_name: employeeName
-        });
-        Swal.close();
-        Swal.fire("Assigned!", "Leads assigned successfully.", "success");
-        setSelectedLeads([]);
-        setBulkEmployee("");
-        queryClient.invalidateQueries("get_leads");
-      } catch (error) {
-        Swal.close();
-        Swal.fire("Error!", "Failed to assign leads.", "error");
-      }
+    if (!result.isConfirmed) return;
+
+    Swal.fire({
+      title: "Assigning...",
+      didOpen: () => Swal.showLoading(),
+      allowOutsideClick: false
+    });
+
+    try {
+      await axiosInstance.post(API_URLS.assign_lead, {
+        assign_all: assignAll,
+        lead_ids: assignAll ? [] : selectedLeads,
+        employee_id: bulkEmployee,
+        employee_name: employeeName
+      });
+
+      Swal.close();
+      Swal.fire("Assigned!", "Leads assigned successfully.", "success");
+
+      // reset
+      setSelectedLeads([]);
+      setAssignAll(false);
+      setBulkEmployee("");
+
+      queryClient.invalidateQueries("get_leads");
+    } catch (error) {
+      Swal.close();
+      Swal.fire("Error!", "Failed to assign leads.", "error");
     }
   };
+
 
   const toggleLeadSelection = (leadId) => {
     setSelectedLeads((prev) =>
@@ -177,17 +212,39 @@ const LeadList = () => {
     );
   };
 
-
   const tableHead = [
     "S.No.",
-    "Assigned To",
+    <span className="flex gap-2 items-center">
+      <input
+        type="checkbox"
+        checked={assignAll}
+        onChange={(e) => {
+          setAssignAll(e.target.checked);
+          setSelectedLeads([]);
+        }}
+        className="h-5 w-5"
+      />
+      Assign</span>,
+    <span
+      className="flex items-center gap-1 cursor-pointer select-none"
+      onClick={() =>
+        setDateSort(prev => (prev === "asc" ? "desc" : "asc"))
+      }
+    >
+      Lead Date / Time
+      {dateSort === "asc" ? (
+        <ArrowUpwardIcon className="!text-red-800" fontSize="small" />
+      ) : (
+        <ArrowDownwardIcon className="!text-blue-800" fontSize="small" />
+      )}
+    </span>,
+    "Remark",
+    " Status",
     "FollowUp",
     "Action",
     "Name",
     "Mobile",
     "Email",
-    "Primary Status",
-    "Secondary Status",
     "Service",
     "Property",
     "Locality",
@@ -195,13 +252,20 @@ const LeadList = () => {
     "BHK",
     "Price",
     "Building",
-    "Address",
-    "Date / Time",
+    "Address"
   ];
 
-  // 🔹 Table Rows
+
   const tableRow = allData?.data?.map((lead, index) => [
-    index + 1 + (currentPage - 1) * fk.values.count,
+    <div className="flex gap-2">
+      {index + 1 + (currentPage - 1) * 50}
+      {userRole !== "admin" &&
+        (!lead.current_status) && (
+          <span className="bg-green-600 text-white text-[10px] px-2  rounded-full">
+            NEW
+          </span>
+        )}
+    </div>,
 
     <span key={lead.id}>
       {lead?.assigned_employee_name ? (
@@ -209,13 +273,18 @@ const LeadList = () => {
       ) : (
         <input
           type="checkbox"
-          checked={selectedLeads.includes(lead.id)}
+          disabled={assignAll}
+          checked={assignAll || selectedLeads.includes(lead.id)}
           onChange={() => toggleLeadSelection(lead.id)}
           className="h-5 w-5"
         />
       )}
     </span>,
-
+    lead.crm_created_at
+      ? moment.utc(lead.crm_created_at).format("DD-MM-YYYY HH:mm:ss")
+      : "--",
+    lead.crm_secondary_status || "--",
+    lead.current_status || "--",
     <Button
       className="!bg-green-600 !text-white"
       onClick={() => {
@@ -236,8 +305,6 @@ const LeadList = () => {
     lead.crm_lead_name || "--",
     lead.crm_mobile || "--",
     lead.crm_email || "--",
-    lead.crm_secondary_status || "--",
-    lead.current_status || "--",
     lead.crm_service_type || "--",
     lead.crm_property_type || "--",
     lead.crm_locality || "--",
@@ -246,9 +313,7 @@ const LeadList = () => {
     lead.crm_price || "--",
     lead.crm_building || "--",
     lead.crm_address || "--",
-    lead.crm_created_at
-      ? moment.utc(lead.crm_created_at).format("DD-MM-YYYY HH:mm:ss")
-      : "--",
+
   ]);
 
   return (
@@ -307,10 +372,10 @@ const LeadList = () => {
           placeholder="Search by name or mobile"
           name="search"
           value={fk.values.search}
-          onChange={fk.handleChange}
+          onChange={(e) => fk.setFieldValue("search", e.target.value.trimStart())}
         />
       </div>
-      {selectedLeads?.length > 0 && (
+      {(selectedLeads.length > 0 || assignAll) && (
         <div className="flex items-center justify-end gap-3 mb-4">
           <FormControl size="small">
             <InputLabel id="bulk-employee-label">Select Employee</InputLabel>
@@ -327,7 +392,7 @@ const LeadList = () => {
           </FormControl>
           <Button
             variant="contained"
-            disabled={!bulkEmployee || selectedLeads.length === 0}
+            disabled={!bulkEmployee}
             onClick={handleBulkAssign}
           >
             Assign Leads

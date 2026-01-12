@@ -24,6 +24,7 @@ const AllOwnerProperty = () => {
             search: "",
             start_date: "",
             end_date: "",
+            status: "",
             property_type: "",
             service_type: "",
             area: "",
@@ -90,6 +91,7 @@ const AllOwnerProperty = () => {
                 search: fk.values.search,
                 start_date: fk.values.start_date,
                 end_date: fk.values.end_date,
+                status: fk.values.crm_availability,
                 property_type: fk.values.property_type,
                 service_type: fk.values.service_type,
                 area: fk.values.area,
@@ -102,13 +104,14 @@ const AllOwnerProperty = () => {
         }
     );
 
-    const allData = data?.data?.data || [];
+    const allData = data?.data || [];
 
     const tableHead = [
         "S.No.",
         "Property ID",
         "Owner Name",
         "Mobile",
+        "Status",
         "BHK",
         "Property",
         "Service",
@@ -118,16 +121,16 @@ const AllOwnerProperty = () => {
         "Pincode",
         "Address",
         "Tenant",
-        "Status",
         "Date / Time",
         "Action",
     ];
 
-    const tableRow = allData?.map((prop, index) => [
+    const tableRow = allData?.data?.map((prop, index) => [
         index + 1,
         prop.crm_property_unique_id || "--",
         prop.crm_owner_name || "--",
         prop.crm_mobile || "--",
+        prop.crm_availability || "--",
         prop.crm_bhk || "--",
         prop.crm_property_type || "--",
         prop.crm_service_type || "--",
@@ -137,7 +140,6 @@ const AllOwnerProperty = () => {
         prop.crm_pincode || "--",
         prop.crm_address || "--",
         prop.crm_tenant_type || "--",
-        prop.crm_availability || "--",
         prop.crm_created_at
             ? moment.utc(prop.crm_created_at).format("DD-MM-YYYY HH:mm:ss")
             : "--",
@@ -241,7 +243,6 @@ const AllOwnerProperty = () => {
 
     return (
         <div>
-
             <div className="flex justify-between mb-4">
                 <p className="font-bold text-xl mb-4">Property</p>
                 <div className="flex justify-end gap-5">
@@ -282,6 +283,24 @@ const AllOwnerProperty = () => {
                     onChange={fk.handleChange}
                     sx={{ minWidth: 200 }}
                 />
+            </div>
+            <div className="flex gap-2 mb-4 flex-nowrap overflow-x-auto !my-5">
+                <p className="flex items-center">Select  :</p>
+                <TextField
+                    size="small"
+                    select
+                    label="Status"
+                    value={fk.values.crm_availability}
+                    onChange={(e) => fk.setFieldValue("crm_availability", e.target.value)}
+                    sx={{ minWidth: 140 }}
+                >
+                    <MenuItem value="">All</MenuItem>
+                    <MenuItem value="Available"> Available</MenuItem>
+                    <MenuItem value="Rented"> Rented</MenuItem>
+                    <MenuItem value="Not Answering"> Not Answering</MenuItem>
+                    <MenuItem value="Rejected"> Rejected</MenuItem>
+                    <MenuItem value="Deal Success"> Deal Success</MenuItem>
+                </TextField>
 
                 <TextField
                     size="small"

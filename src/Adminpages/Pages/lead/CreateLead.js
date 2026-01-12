@@ -11,8 +11,13 @@ import Loader from "../../Shared/Loader";
 const CreateLead = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const [mobileError, setMobileError] = useState("");
+    const [existingLead, setExistingLead] = useState(null);
+
     const location = useLocation();
     const lead = location.state?.lead || {}
+    const isEdit = Boolean(lead?.id);
+
 
     const fk = useFormik({
         initialValues: {
@@ -23,7 +28,7 @@ const CreateLead = () => {
             crm_property_type: lead?.crm_property_type || "",
             crm_locality: lead?.crm_locality || "",
             crm_city: lead?.crm_city || "Lucknow",
-            crm_secondary_status: lead.crm_secondary_status  || "",
+            crm_secondary_status: lead.crm_secondary_status || "",
             crm_bhk: lead?.crm_bhk || "",
             crm_price: lead?.crm_price || "",
             crm_building: lead?.crm_building || "",
@@ -50,6 +55,37 @@ const CreateLead = () => {
         },
     });
 
+    const handleMobileChange = async (e) => {
+        const value = e.target.value;
+        fk.setFieldValue("crm_mobile", value);
+
+        const digits = value.replace(/\D/g, "");
+        if (digits.length < 10) {
+            setMobileError("");
+            setExistingLead(null);
+            return;
+        }
+
+        try {
+            const res = await axiosInstance.post(
+                API_URLS.check_mobile_exists,
+                {
+                    mobile: value,
+                    lead_id: lead?.id || null
+                }
+            );
+
+            if (res.data.exists) {
+                setMobileError("Mobile number already exists");
+                setExistingLead(res.data.lead);
+            } else {
+                setMobileError("");
+                setExistingLead(null);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
 
 
     const { data: serviceList } = useQuery(
@@ -100,10 +136,39 @@ const CreateLead = () => {
                         label="Mobile"
                         name="crm_mobile"
                         value={fk.values.crm_mobile}
-                        onChange={fk.handleChange}
-                        error={fk.touched.crm_mobile && Boolean(fk.errors.crm_mobile)}
-                        helperText={fk.touched.crm_mobile && fk.errors.crm_mobile}
+                        onChange={handleMobileChange}
+                        error={Boolean(mobileError)}
+                        helperText={
+                            mobileError && (
+                                <span>
+                                    {mobileError}
+                                    {existingLead && (
+                                        <>
+                                            <br />
+                                            <span
+                                                onClick={() =>
+                                                    navigate("/leads", {
+                                                        state: { searchMobile: existingLead.mobile }
+                                                    })
+                                                }
+                                                style={{
+                                                    color: "#1976d2",
+                                                    cursor: "pointer",
+                                                    fontSize: "12px",
+                                                    textDecoration: "underline"
+                                                }}
+                                            >
+                                                View Lead: {existingLead.name}
+                                            </span>
+
+                                        </>
+                                    )}
+                                </span>
+                            )
+                        }
                     />
+
+
                     <TextField
                         fullWidth
                         label="Email"
@@ -167,12 +232,12 @@ const CreateLead = () => {
                     />
                     <TextField
                         fullWidth
-                        label="Status"
+                        label="Remark"
                         name="crm_secondary_status"
                         value={fk.values.crm_secondary_status}
                         onChange={fk.handleChange}
-                        error={fk.touched.crm_secondary_status && Boolean(fk.errors.crm_secondary_status)}
-                        helperText={fk.touched.crm_secondary_status && fk.errors.crm_secondary_status}
+                        disabled={isEdit}
+                        helperText={isEdit ? "Remark cannot be edited while updating lead" : ""}
                     />
                     <TextField
                         fullWidth
@@ -212,9 +277,16 @@ const CreateLead = () => {
                     <Button variant="contained" color="error" onClick={() => fk.resetForm()}>
                         Clear
                     </Button>
-                    <Button variant="contained" color="success" onClick={fk.handleSubmit}>
+                    <Button
+                        variant="contained"
+                        color="success"
+                        onClick={fk.handleSubmit}
+                        disabled={Boolean(mobileError) || existingLead}
+                    >
                         {lead?.id ? "Update" : "Submit"}
                     </Button>
+
+
                 </div>
             </div>
         </div>
