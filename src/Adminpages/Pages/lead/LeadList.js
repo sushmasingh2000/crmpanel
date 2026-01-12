@@ -238,12 +238,13 @@ const LeadList = () => {
         <ArrowDownwardIcon className="!text-blue-800" fontSize="small" />
       )}
     </span>,
-    "Remark",
-    " Status",
+   
     "FollowUp",
     "Action",
     "Name",
     "Mobile",
+     "Remark",
+    " Status",
     "Email",
     "Service",
     "Property",
@@ -283,8 +284,7 @@ const LeadList = () => {
     lead.crm_created_at
       ? moment.utc(lead.crm_created_at).format("DD-MM-YYYY HH:mm:ss")
       : "--",
-    lead.crm_secondary_status || "--",
-    lead.current_status || "--",
+   
     <Button
       className="!bg-green-600 !text-white"
       onClick={() => {
@@ -304,6 +304,8 @@ const LeadList = () => {
 
     lead.crm_lead_name || "--",
     lead.crm_mobile || "--",
+     lead.crm_secondary_status || "--",
+    lead.current_status || "--",
     lead.crm_email || "--",
     lead.crm_service_type || "--",
     lead.crm_property_type || "--",

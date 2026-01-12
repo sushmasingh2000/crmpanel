@@ -72,6 +72,7 @@ const Dashboard = () => {
     " Followup Date / Time",
     "FollowUp",
     "Status",
+    "Remark",
     "Lead Name",
     "Mobile",
   ];
@@ -103,6 +104,7 @@ const Dashboard = () => {
       View
     </Button>,
     f.current_status || "--",
+    f.crm_secondary_status|| "--",
     f.crm_lead_name || "--",
     f.crm_mobile || "--",
   ]);
