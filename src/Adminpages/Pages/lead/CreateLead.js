@@ -23,6 +23,7 @@ const CreateLead = () => {
         initialValues: {
             crm_lead_name: lead?.crm_lead_name || "",
             crm_mobile: lead?.crm_mobile || "",
+            crm_alternate_mobile:lead?.crm_alternate_mobile || "",
             crm_email: lead?.crm_email || "",
             crm_service_type: lead?.crm_service_type || "",
             crm_property_type: lead?.crm_property_type || "",
@@ -40,13 +41,11 @@ const CreateLead = () => {
             try {
                 const payload = lead?.id ? { ...values, lead_id: lead.id } : values;
                 const res = await axiosInstance.post(API_URLS.create_leads, payload);
-                toast(res.data.message);
+                toast(res.data.message , {id:1});
                 if (res.data.success) {
                     navigate("/leads");
                     fk.resetForm();
-                } else {
-                    toast.error(res.data.message || "Failed to save lead");
-                }
+                } 
             } catch (e) {
                 console.error(e);
                 toast.error("Something went wrong");
@@ -167,7 +166,15 @@ const CreateLead = () => {
                             )
                         }
                     />
-
+                    <TextField
+                        fullWidth
+                        label="Alternate Mobile No."
+                        name="crm_alternate_mobile"
+                        value={fk.values.crm_alternate_mobile}
+                        onChange={fk.handleChange}
+                        // error={fk.touched.crm_alternate_mobile && Boolean(fk.errors.crm_alternate_mobile)}
+                        // helperText={fk.touched.crm_alternate_mobile && fk.errors.crm_alternate_mobile}
+                    />
 
                     <TextField
                         fullWidth

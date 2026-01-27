@@ -106,6 +106,7 @@ const OwnerList = () => {
             crm_owner_name: selectedOwner?.crm_owner_name || "",
             crm_co_owner_name:selectedOwner?.crm_co_owner_name || "",
             crm_mobile: selectedOwner?.crm_mobile || "",
+            crm_alternate_mobile:selectedOwner?.crm_alternate_mobile || "",
             crm_area: selectedOwner?.crm_area || "",
             crm_pincode: selectedOwner?.crm_pincode || "",
             crm_owner_email: selectedOwner?.crm_owner_email || "",
@@ -181,7 +182,7 @@ const OwnerList = () => {
     const uniqueCities = [...new Set(areas.map(a => a.city_name))];
 
 
-    const tableHead = ["S.No.", "Owner Name", "Co-Owner Name" , "Mobile", "Email", "Date / Time", "Property", "Owner"];
+    const tableHead = ["S.No.", "Owner Name", "Co-Owner Name" , "Mobile", "Alternate Mobile",  "Email", "Date / Time", "Property", "Owner"];
 
     const tableRow = owners?.data?.map((o, index) => [
         index + 1,
@@ -190,6 +191,7 @@ const OwnerList = () => {
         })} className="text-blue-600 underline">{o.crm_owner_name || "--"}</span>,
         o?.crm_co_owner_name || "--",
         o.crm_mobile || "--",
+        o.crm_alternate_mobile || "--",
         o.crm_owner_email || "--",
         moment(o.crm_created_at)?.format("DD-MM-YYYY HH:mm:ss"),
         <Button onClick={() => handleOpen(o.id)} className="!bg-green-500 !text-white"> + ADD </Button>,
@@ -262,7 +264,8 @@ const OwnerList = () => {
                 fields={[
                     { name: "crm_owner_name", label: "Owner Name", type: "text" },
                     { name: "crm_co_owner_name", label: "Co-Owner Name", type: "text" },
-                    { name: "crm_mobile", label: "Mobile", type: "text" },
+                    { name: "crm_mobile", label: "Mobile", type: "number" },
+                    { name: "crm_alternate_mobile", label: " Alternate Mobile", type: "number" },
                     { name: "crm_owner_email", label: "Email", type: "text" },
                     
                 ]}

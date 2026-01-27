@@ -238,12 +238,13 @@ const LeadList = () => {
         <ArrowDownwardIcon className="!text-blue-800" fontSize="small" />
       )}
     </span>,
-   
+
     "FollowUp",
     "Action",
     "Name",
     "Mobile",
-     "Remark",
+    "Alternate Mobile",
+    "Remark",
     " Status",
     "Email",
     "Service",
@@ -284,7 +285,7 @@ const LeadList = () => {
     lead.crm_created_at
       ? moment.utc(lead.crm_created_at).format("DD-MM-YYYY HH:mm:ss")
       : "--",
-   
+
     <Button
       className="!bg-green-600 !text-white"
       onClick={() => {
@@ -304,7 +305,8 @@ const LeadList = () => {
 
     lead.crm_lead_name || "--",
     lead.crm_mobile || "--",
-     lead.crm_secondary_status || "--",
+    lead.crm_alternate_mobile || "--",
+    lead.crm_secondary_status || "--",
     lead.current_status || "--",
     lead.crm_email || "--",
     lead.crm_service_type || "--",
@@ -376,6 +378,38 @@ const LeadList = () => {
           value={fk.values.search}
           onChange={(e) => fk.setFieldValue("search", e.target.value.trimStart())}
         />
+        <Button
+          variant="contained"
+          color="success"
+          onClick={async () => {
+            try {
+              const res = await axiosInstance.post(
+                API_URLS.download_leads_excel,
+                {
+                  start_date: fk.values.start_date,
+                  end_date: fk.values.end_date,
+                  status: fk.values.status,
+                  search: fk.values.search?.trim()
+                },
+                { responseType: "blob" } // 👈 Important
+              );
+
+              // Create blob link for download
+              const url = window.URL.createObjectURL(new Blob([res.data]));
+              const link = document.createElement("a");
+              link.href = url;
+              link.setAttribute("download", `Leads_${Date.now()}.xlsx`);
+              document.body.appendChild(link);
+              link.click();
+              link.remove();
+            } catch (error) {
+              Swal.fire("Error", "Failed to download Excel", "error");
+            }
+          }}
+        >
+          Download Excel
+        </Button>
+
       </div>
       {(selectedLeads.length > 0 || assignAll) && (
         <div className="flex items-center justify-end gap-3 mb-4">
