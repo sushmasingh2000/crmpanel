@@ -1,8 +1,8 @@
-import { FilterAlt } from "@mui/icons-material";
+import { FilterAlt, Lock } from "@mui/icons-material";
 import { Button, TextField } from "@mui/material";
 import { useFormik } from "formik";
 import moment from "moment";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useQuery } from "react-query";
 import { useNavigate } from "react-router-dom";
@@ -11,6 +11,7 @@ import axiosInstance from "../../config/axios";
 import CustomDialog from "../../Shared/CustomDialogBox";
 import CustomTable from "../../Shared/CustomTable";
 import CustomToPagination from "../../Shared/Pagination";
+import OwnerCustom from "../../Shared/OwnerCustom";
 
 const OwnerList = () => {
     const navigate = useNavigate();
@@ -19,6 +20,10 @@ const OwnerList = () => {
     const [selectedOwner, setSelectedOwner] = useState(null);
     const [open, setOpen] = useState(false);
     const [ownerId, setOwnerId] = useState(null);
+    const [mobileExists, setMobileExists] = useState(null);
+    const [alternateMobileExists, setAlternateMobileExists] = useState(null);
+
+
     const type = localStorage.getItem("type")
 
     const handleOpen = (id) => {
@@ -91,22 +96,56 @@ const OwnerList = () => {
         },
     });
 
-    const handleOpenOwnerDialog = (owner = null) => {
-        setSelectedOwner(owner);
-        setOwnerDialogOpen(true);
-    };
+  const handleOpenOwnerDialog = (owner = null) => {
+    setSelectedOwner(owner);
+
+    if (!owner) {
+        fkOwner.resetForm({
+            values: {
+                crm_owner_name: "",
+                crm_co_owner_name: "",
+                crm_mobile: "",
+                crm_alternate_mobile: "",
+                crm_area: "",
+                crm_pincode: "",
+                crm_owner_email: "",
+            },
+        });
+        setMobileExists(null);
+        setAlternateMobileExists(null);
+    }
+
+    setOwnerDialogOpen(true);
+};
+
 
     const handleCloseOwnerDialog = () => {
         setSelectedOwner(null);
         setOwnerDialogOpen(false);
+
+        fkOwner.resetForm({
+            values: {
+                crm_owner_name: "",
+                crm_co_owner_name: "",
+                crm_mobile: "",
+                crm_alternate_mobile: "",
+                crm_area: "",
+                crm_pincode: "",
+                crm_owner_email: "",
+            },
+        });
+
+        setMobileExists(null);
+        setAlternateMobileExists(null);
     };
+
 
     const fkOwner = useFormik({
         initialValues: {
             crm_owner_name: selectedOwner?.crm_owner_name || "",
-            crm_co_owner_name:selectedOwner?.crm_co_owner_name || "",
+            crm_co_owner_name: selectedOwner?.crm_co_owner_name || "",
             crm_mobile: selectedOwner?.crm_mobile || "",
-            crm_alternate_mobile:selectedOwner?.crm_alternate_mobile || "",
+            crm_alternate_mobile: selectedOwner?.crm_alternate_mobile || "",
             crm_area: selectedOwner?.crm_area || "",
             crm_pincode: selectedOwner?.crm_pincode || "",
             crm_owner_email: selectedOwner?.crm_owner_email || "",
@@ -127,6 +166,15 @@ const OwnerList = () => {
             }
         },
     });
+    const filterByMobile = (mobile) => {
+        if (!mobile) {
+            fk.setFieldValue("search", "");
+        } else {
+            fk.setFieldValue("search", mobile);
+        }
+        setCurrentPage(1);
+        refetch();
+    };
 
 
     const { data: propertyList } = useQuery(
@@ -181,8 +229,38 @@ const OwnerList = () => {
 
     const uniqueCities = [...new Set(areas.map(a => a.city_name))];
 
+    const checkMobileExists = async (mobile, isAlternate = false) => {
+        if (!mobile) {
+            if (isAlternate) setAlternateMobileExists(null);
+            else setMobileExists(null);
+            return;
+        }
 
-    const tableHead = ["S.No.", "Owner Name", "Co-Owner Name" , "Mobile", "Alternate Mobile",  "Email", "Date / Time", "Property", "Owner"];
+        try {
+            const res = await axiosInstance.post(
+                API_URLS.owner_check_mobile_exists,
+                {
+                    mobile,
+                    crm_owner_id: selectedOwner?.id || null,
+                    is_alternate: isAlternate,
+                }
+            );
+
+            if (res.data.exists) {
+                if (isAlternate) setAlternateMobileExists(res.data);
+                else setMobileExists(res.data);
+            } else {
+                if (isAlternate) setAlternateMobileExists(null);
+                else setMobileExists(null);
+            }
+
+        } catch (err) {
+            if (isAlternate) setAlternateMobileExists(null);
+            else setMobileExists(null);
+        }
+    };
+
+    const tableHead = ["S.No.", "Owner Name", "Co-Owner Name", "Mobile", "Alternate Mobile", "Email", "Date / Time", "Property", "Owner"];
 
     const tableRow = owners?.data?.map((o, index) => [
         index + 1,
@@ -196,12 +274,14 @@ const OwnerList = () => {
         moment(o.crm_created_at)?.format("DD-MM-YYYY HH:mm:ss"),
         <Button onClick={() => handleOpen(o.id)} className="!bg-green-500 !text-white"> + ADD </Button>,
         <div className="flex gap-2">
+           {type === "admin" ? 
             <Button
                 className="!bg-blue-500 !text-white"
                 onClick={() => handleOpenOwnerDialog(o)}
             >
                 Edit
-            </Button>
+            </Button> 
+            : <Lock/> }
         </div>
     ]);
 
@@ -210,13 +290,13 @@ const OwnerList = () => {
         <div className="p-4">
             <div className="flex justify-between mb-3">
                 <p className="font-bold text-xl">Owner </p>
-                {type === "admin" && 
-                <Button
-                    variant="contained"
-                    onClick={() => handleOpenOwnerDialog(null)}
-                >
-                    + Add Owner
-                </Button>
+                {type === "admin" &&
+                    <Button
+                        variant="contained"
+                        onClick={() => handleOpenOwnerDialog(null)}
+                    >
+                        + Add Owner
+                    </Button>
                 }
             </div>
             <div className="flex gap-3 mb-4">
@@ -255,7 +335,8 @@ const OwnerList = () => {
                 setPage={setCurrentPage}
                 data={owners}
             />
-            <CustomDialog
+
+            <OwnerCustom
                 open={ownerDialogOpen}
                 onClose={handleCloseOwnerDialog}
                 onSubmit={fkOwner.handleSubmit}
@@ -264,12 +345,35 @@ const OwnerList = () => {
                 fields={[
                     { name: "crm_owner_name", label: "Owner Name", type: "text" },
                     { name: "crm_co_owner_name", label: "Co-Owner Name", type: "text" },
-                    { name: "crm_mobile", label: "Mobile", type: "number" },
-                    { name: "crm_alternate_mobile", label: " Alternate Mobile", type: "number" },
+                    {
+                        name: "crm_mobile",
+                        label: "Mobile",
+                        type: "text",
+                        onChange: (e) => {
+                            fkOwner.handleChange(e);
+                            checkMobileExists(e.target.value, false);
+                            filterByMobile(e.target.value, false); // ✅ filter table automatically
+                        },
+                        mobileExists: mobileExists,
+                    },
+                    {
+                        name: "crm_alternate_mobile",
+                        label: "Alternate Mobile",
+                        type: "text",
+                        onChange: (e) => {
+                            fkOwner.handleChange(e);
+                            checkMobileExists(e.target.value, true);
+                            filterByMobile(e.target.value, true); // ✅ filter table automatically
+                        },
+                        mobileExists: alternateMobileExists,
+                    },
+
                     { name: "crm_owner_email", label: "Email", type: "text" },
-                    
                 ]}
+
             />
+
+
 
             <CustomDialog
                 open={open}

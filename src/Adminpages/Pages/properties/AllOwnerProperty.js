@@ -10,11 +10,14 @@ import CustomToPagination from "../../Shared/Pagination";
 import CustomDialog from "../../Shared/CustomDialogBox";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
+import { Lock } from "@mui/icons-material";
 
 const AllOwnerProperty = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [open, setOpen] = useState(false);
     const [selectedProperty, setSelectedProperty] = useState(null);
+      const type = localStorage.getItem("type")
+
     const handleClose = () => {
         setOpen(false);
     };
@@ -143,7 +146,9 @@ const AllOwnerProperty = () => {
         prop.crm_created_at
             ? moment.utc(prop.crm_created_at).format("DD-MM-YYYY HH:mm:ss")
             : "--",
-        <Button
+       <span>
+        {type==="admin"? 
+         <Button
             variant="contained"
             onClick={() => {
                 setSelectedProperty(prop);
@@ -151,7 +156,8 @@ const AllOwnerProperty = () => {
             }}
         >
             Edit
-        </Button>,
+        </Button>: <Lock/>}
+       </span>,
     ]);
 
     const uniqueCities = [...new Set(areas.map(a => a.city_name))];

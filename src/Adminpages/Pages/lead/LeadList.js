@@ -24,6 +24,7 @@ import CustomToPagination from "../../Shared/Pagination";
 import FollowupList from "../followup/FollowupList";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import { Lock } from "@mui/icons-material";
 
 
 const LeadList = () => {
@@ -215,6 +216,7 @@ const LeadList = () => {
   const tableHead = [
     "S.No.",
     <span className="flex gap-2 items-center">
+      {userRole==="admin" && 
       <input
         type="checkbox"
         checked={assignAll}
@@ -223,7 +225,7 @@ const LeadList = () => {
           setSelectedLeads([]);
         }}
         className="h-5 w-5"
-      />
+      />}
       Assign</span>,
     <span
       className="flex items-center gap-1 cursor-pointer select-none"
@@ -240,7 +242,7 @@ const LeadList = () => {
     </span>,
 
     "FollowUp",
-    "Action",
+     "Action",
     "Name",
     "Mobile",
     "Alternate Mobile",
@@ -295,13 +297,13 @@ const LeadList = () => {
     >
       View
     </Button>,
-
-    <Button
+    <span>{userRole === "admin" ? <Button
       className="!bg-blue-600 !text-white"
       onClick={() => navigate("/add-lead", { state: { lead } })}
     >
       Edit
-    </Button>,
+    </Button> : <Lock/>}</span>
+    ,
 
     lead.crm_lead_name || "--",
     lead.crm_mobile || "--",
