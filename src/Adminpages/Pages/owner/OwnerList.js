@@ -12,6 +12,7 @@ import CustomDialog from "../../Shared/CustomDialogBox";
 import CustomTable from "../../Shared/CustomTable";
 import CustomToPagination from "../../Shared/Pagination";
 import OwnerCustom from "../../Shared/OwnerCustom";
+import Swal from "sweetalert2";
 
 const OwnerList = () => {
     const navigate = useNavigate();
@@ -317,6 +318,7 @@ const OwnerList = () => {
                     value={fk.values.search}
                     onChange={fk.handleChange}
                 />
+
                 <Button
                     variant="contained"
                     startIcon={<FilterAlt />}
@@ -324,6 +326,38 @@ const OwnerList = () => {
                 >
                     Filter
                 </Button>
+                 <Button
+                          variant="contained"
+                          color="success"
+                          onClick={async () => {
+                            try {
+                              const res = await axiosInstance.post(
+                                API_URLS.download_owner_excel,
+                                {
+                                  start_date: fk.values.start_date,
+                                  end_date: fk.values.end_date,
+                                  status: fk.values.status,
+                                  search: fk.values.search?.trim()
+                                },
+                                { responseType: "blob" } // 👈 Important
+                              );
+                
+                              // Create blob link for download
+                              const url = window.URL.createObjectURL(new Blob([res.data]));
+                              const link = document.createElement("a");
+                              link.href = url;
+                              link.setAttribute("download", `Owners_${Date.now()}.xlsx`);
+                              document.body.appendChild(link);
+                                toast.success("Excel downloaded successfully");
+                              link.click();
+                              link.remove();
+                            } catch (error) {
+                              Swal.fire("Error", "Failed to download Excel", "error");
+                            }
+                          }}
+                        >
+                          Download Excel
+                        </Button>
             </div>
             <CustomTable
                 tablehead={tableHead}

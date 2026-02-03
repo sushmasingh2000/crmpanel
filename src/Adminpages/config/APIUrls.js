@@ -20,6 +20,7 @@ export const API_URLS = {
   check_mobile_exists:`${domain}/api/v1/check-mobile-exists`,
   owner_check_mobile_exists:`${domain}/api/v1/owner-check-mobile-exists`,
   download_leads_excel:`${domain}/api/v1/download-leads-excel`,
+  download_owner_excel:`${domain}/api/v1/download-owner-excel`,
 
   add_followup: `${domain}/api/v1/add-followups`,
   get_followup: `${domain}/api/v1/get-followups`,

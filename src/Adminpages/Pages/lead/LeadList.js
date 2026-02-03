@@ -25,6 +25,7 @@ import FollowupList from "../followup/FollowupList";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import { Lock } from "@mui/icons-material";
+import toast from "react-hot-toast";
 
 
 const LeadList = () => {
@@ -216,16 +217,16 @@ const LeadList = () => {
   const tableHead = [
     "S.No.",
     <span className="flex gap-2 items-center">
-      {userRole==="admin" && 
-      <input
-        type="checkbox"
-        checked={assignAll}
-        onChange={(e) => {
-          setAssignAll(e.target.checked);
-          setSelectedLeads([]);
-        }}
-        className="h-5 w-5"
-      />}
+      {userRole === "admin" &&
+        <input
+          type="checkbox"
+          checked={assignAll}
+          onChange={(e) => {
+            setAssignAll(e.target.checked);
+            setSelectedLeads([]);
+          }}
+          className="h-5 w-5"
+        />}
       Assign</span>,
     <span
       className="flex items-center gap-1 cursor-pointer select-none"
@@ -242,7 +243,7 @@ const LeadList = () => {
     </span>,
 
     "FollowUp",
-     "Action",
+    "Action",
     "Name",
     "Mobile",
     "Alternate Mobile",
@@ -302,7 +303,7 @@ const LeadList = () => {
       onClick={() => navigate("/add-lead", { state: { lead } })}
     >
       Edit
-    </Button> : <Lock/>}</span>
+    </Button> : <Lock />}</span>
     ,
 
     lead.crm_lead_name || "--",
@@ -402,6 +403,7 @@ const LeadList = () => {
               link.href = url;
               link.setAttribute("download", `Leads_${Date.now()}.xlsx`);
               document.body.appendChild(link);
+              toast.success("Excel downloaded successfully");
               link.click();
               link.remove();
             } catch (error) {
