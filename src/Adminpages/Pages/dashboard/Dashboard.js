@@ -78,15 +78,15 @@ const Dashboard = () => {
   ];
 
   const tableRow = followups.map((f, idx) => [
-   <span className="flex gap-2">
-     {idx + 1},
+    <span className="flex gap-2">
+      {idx + 1},
       {userRole !== "admin" &&
         (!f.current_status) && (
           <span className="bg-green-600 text-white text-[10px] px-2  rounded-full">
             NEW
           </span>
         )}
-   </span>,
+    </span>,
 
     f.crm_created_at
       ? moment(f.crm_created_at).format("YYYY-MM-DD HH:mm:ss")
@@ -104,7 +104,7 @@ const Dashboard = () => {
       View
     </Button>,
     f.current_status || "--",
-    f.crm_secondary_status|| "--",
+    f.crm_secondary_status || "--",
     f.crm_lead_name || "--",
     f.crm_mobile || "--",
   ]);
@@ -166,14 +166,19 @@ const Dashboard = () => {
             value={fk.values.end_date}
             onChange={(e) => fk.setFieldValue("end_date", e.target.value)}
           />
+
           <TextField
             select
             name="status"
             label="Followup Status"
             value={fk.values.status}
-            onChange={fk.handleChange}
+            onChange={(e) => {
+              const value = e.target.value;
+              fk.setFieldValue("status", value === "ALL" ? "" : value);
+            }}
             className="lg:w-[300px]"
           >
+            <MenuItem value="ALL">All</MenuItem>
             {status?.data?.map((item) => (
               <MenuItem
                 key={item.followup_status_id}

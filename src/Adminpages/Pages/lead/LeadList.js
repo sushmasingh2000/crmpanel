@@ -361,10 +361,15 @@ const LeadList = () => {
           select
           name="status"
           label="Followup Status"
-          value={fk.values.status}
-          onChange={fk.handleChange}
+          value={fk.values.status || "ALL"}
+          onChange={(e) => {
+            const value = e.target.value;
+            fk.setFieldValue("status", value === "ALL" ? "" : value);
+          }}
           className="lg:w-[300px]"
         >
+          <MenuItem value="ALL">All</MenuItem>
+
           {status?.data?.map((item) => (
             <MenuItem
               key={item.followup_status_id}
@@ -374,6 +379,7 @@ const LeadList = () => {
             </MenuItem>
           ))}
         </TextField>
+
         <TextField
           type="search"
           placeholder="Search by name or mobile"
